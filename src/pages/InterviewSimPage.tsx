@@ -38,6 +38,37 @@ export default function InterviewSimPage() {
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Copy-paste detection
+  const [pasteCount, setPasteCount] = useState(0);
+  const [pastedChars, setPastedChars] = useState(0);
+  const [typedChars, setTypedChars] = useState(0);
+  const [showPasteWarning, setShowPasteWarning] = useState(false);
+  const [pasteWarningLevel, setPasteWarningLevel] = useState<"none" | "warning" | "penalty">("none");
+
+  const handleExplanationPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = e.clipboardData.getData("text");
+    const newPasteCount = pasteCount + 1;
+    setPasteCount(newPasteCount);
+    setPastedChars(prev => prev + pastedText.length);
+    if (newPasteCount === 1 && pastedText.length > 50) {
+      setPasteWarningLevel("warning");
+      setShowPasteWarning(true);
+      setTimeout(() => setShowPasteWarning(false), 5000);
+    } else if (newPasteCount >= 2) {
+      setPasteWarningLevel("penalty");
+      setShowPasteWarning(true);
+      setTimeout(() => setShowPasteWarning(false), 6000);
+    }
+  };
+
+  const handleExplanationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    if (newVal.length > explanation.length && newVal.length - explanation.length <= 2) {
+      setTypedChars(prev => prev + (newVal.length - explanation.length));
+    }
+    setExplanation(newVal);
+  };
+
 
   useEffect(() => {
     if (meta) generateQuestion();
