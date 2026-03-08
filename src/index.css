@@ -30,14 +30,14 @@
     --radius: 0.625rem;
 
     --sidebar-background: 224 71% 4%;
-    --sidebar-foreground: 220 14% 96%;
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 220 70% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 14%;
-    --sidebar-accent-foreground: 220 14% 96%;
-    --sidebar-border: 220 20% 14%;
+    --sidebar-accent: 220 20% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 220 20% 18%;
     --sidebar-ring: 220 70% 50%;
-    --sidebar-muted: 220 15% 25%;
+    --sidebar-muted: 220 15% 30%;
 
     --surface: 0 0% 100%;
     --surface-hover: 220 14% 98%;
