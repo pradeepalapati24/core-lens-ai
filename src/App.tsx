@@ -13,6 +13,8 @@ import PracticePage from "./pages/PracticePage";
 import WorkspacePage from "./pages/WorkspacePage";
 import EvaluationPage from "./pages/EvaluationPage";
 import ProfilePage from "./pages/ProfilePage";
+import AuthPage from "./pages/AuthPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
