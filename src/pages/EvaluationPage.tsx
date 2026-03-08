@@ -226,6 +226,35 @@ export default function EvaluationPage() {
         <p className="text-sm text-muted-foreground">{state?.domain || questionTitle} — {state?.topic || questionSubtopic}</p>
       </motion.div>
 
+      {/* Copy-Paste Detection Banner */}
+      {hasPasteFlag && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-3 p-4 rounded-xl bg-destructive/5 border border-destructive/20">
+          <div className="w-9 h-9 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+            <Clipboard className="w-4.5 h-4.5 text-destructive" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="text-sm font-semibold text-destructive">Copy-Paste Detected</h4>
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-destructive/10 text-destructive">
+                {copyPasteConfidence}% confidence
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {copyPasteReason || "Your explanation appears to be copy-pasted rather than written from your own understanding. Scores have been penalized accordingly. In a real interview, interviewers easily detect rehearsed or copied answers."}
+            </p>
+            {pasteMetrics && (
+              <div className="flex items-center gap-4 mt-2 text-[10px] text-muted-foreground/70 font-mono">
+                <span>Pastes: {pasteMetrics.pasteCount}</span>
+                <span>Pasted: {pasteMetrics.pastedChars} chars</span>
+                <span>Typed: {pasteMetrics.typedChars} chars</span>
+                <span>Ratio: {(pasteMetrics.pasteRatio * 100).toFixed(0)}%</span>
+              </div>
+            )}
+          </div>
+          <ShieldAlert className="w-5 h-5 text-destructive/60 shrink-0" />
+        </motion.div>
+      )}
+
       {/* Score Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="surface-elevated p-6 text-center">
