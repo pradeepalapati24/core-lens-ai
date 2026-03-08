@@ -47,26 +47,27 @@ export default function DashboardPage() {
     fetchUser();
   }, []);
 
-  // Calculate metrics
+  // Calculate metrics (display on /100 scale)
   const totalSolved = domainPerformance.reduce((sum, p) => sum + p.total_questions, 0);
-  const avgScore = domainPerformance.length > 0
+  const avgScoreRaw = domainPerformance.length > 0
     ? domainPerformance.reduce((sum, p) => sum + (p.avg_score * p.total_questions), 0) / Math.max(totalSolved, 1)
     : 0;
+  const avgScore = avgScoreRaw * 10; // Convert to /100
   
-  // Interview readiness (avg score)
-  const interviewReadiness = avgScore.toFixed(1);
+  // Interview readiness (avg score out of 100)
+  const interviewReadiness = Math.round(avgScore);
   
-  // Hiring probability (simplified calculation based on avg score)
-  const hiringProbability = Math.min(Math.round(avgScore * 10), 100);
+  // Hiring probability
+  const hiringProbability = Math.min(Math.round(avgScore), 100);
   
-  // Streak (placeholder - would need to track daily activity)
+  // Streak (placeholder)
   const currentStreak = solvedQuestions.length > 0 ? 1 : 0;
 
-  // Radar chart data
+  // Radar chart data (/100)
   const radarData = domainPerformance.map((d) => ({
     subject: d.domain_name.split(" ").slice(0, 2).join(" "),
-    score: d.avg_score,
-    fullMark: 10,
+    score: d.avg_score * 10,
+    fullMark: 100,
   }));
 
   // Get weak domains for heatmap
