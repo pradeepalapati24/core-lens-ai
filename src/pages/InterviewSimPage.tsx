@@ -177,7 +177,7 @@ export default function InterviewSimPage() {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/evaluate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ problem: question.questionText, code: includeCode ? code : null, explanation, domain: question.domain, topic: question.topic }),
+        body: JSON.stringify({ problem: question.questionText, code: includeCode ? code : null, explanation, domain: question.domain, topic: question.topic, pasteMetrics: { pasteCount, pastedChars, typedChars, totalChars: explanation.length, pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0 } }),
       });
       clearInterval(si);
       if (!response.ok) { toast({ variant: "destructive", title: "Evaluation Failed", description: "Something went wrong." }); setIsSubmitting(false); return; }
