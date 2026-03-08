@@ -197,9 +197,9 @@ export default function DashboardPage() {
                       {new Date(e.solved_at).toLocaleDateString()}
                     </span>
                     <span className={`font-mono text-xs font-semibold ${
-                      e.score >= 7 ? "text-success" : e.score >= 5 ? "text-warning" : "text-destructive"
+                      e.score * 10 >= 70 ? "text-success" : e.score * 10 >= 50 ? "text-warning" : "text-destructive"
                     }`}>
-                      {Number(e.score).toFixed(1)}
+                      {Math.round(Number(e.score) * 10)}
                     </span>
                   </div>
                 </div>
