@@ -11,12 +11,12 @@ import { useDomainPerformance, useTopicPerformance, getStrongWeakDomains, getStr
 import { useDomains } from "@/hooks/useDomains";
 import { Progress } from "@/components/ui/progress";
 
-// Level thresholds
+// Level thresholds (on /100 scale)
 const LEVELS = [
-  { name: "Beginner", minScore: 0, maxScore: 4, color: "text-muted-foreground", bg: "bg-muted" },
-  { name: "Intermediate", minScore: 4, maxScore: 7, color: "text-warning", bg: "bg-warning" },
-  { name: "Advanced", minScore: 7, maxScore: 9, color: "text-primary", bg: "bg-primary" },
-  { name: "Expert", minScore: 9, maxScore: 10, color: "text-success", bg: "bg-success" },
+  { name: "Beginner", minScore: 0, maxScore: 40, color: "text-muted-foreground", bg: "bg-muted" },
+  { name: "Intermediate", minScore: 40, maxScore: 70, color: "text-warning", bg: "bg-warning" },
+  { name: "Advanced", minScore: 70, maxScore: 90, color: "text-primary", bg: "bg-primary" },
+  { name: "Expert", minScore: 90, maxScore: 100, color: "text-success", bg: "bg-success" },
 ];
 
 function getLevel(score: number) {
@@ -36,7 +36,7 @@ function getNextLevel(score: number) {
 function getPointsToNext(score: number) {
   const next = getNextLevel(score);
   const pointsNeeded = Math.max(0, next.maxScore - score);
-  return { pointsNeeded: pointsNeeded.toFixed(1), nextLevel: next.name };
+  return { pointsNeeded: Math.round(pointsNeeded).toString(), nextLevel: next.name };
 }
 
 export default function ProfilePage() {
