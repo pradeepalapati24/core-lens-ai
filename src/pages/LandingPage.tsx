@@ -1,101 +1,125 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Brain, BarChart3, Code2, Lightbulb, Cpu } from "lucide-react";
+import { ArrowRight, Zap, Moon, LogOut, LayoutDashboard, BookOpen, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const features = [
-  { icon: Brain, title: "AI Evaluation", desc: "Senior-engineer level code review and feedback" },
-  { icon: BarChart3, title: "Rubric Scoring", desc: "6-axis evaluation with radar charts and analytics" },
-  { icon: Code2, title: "Multi-Domain", desc: "IT and Core Engineering domains covered" },
-  { icon: Lightbulb, title: "Learning Context", desc: "Real-world applications for every concept" },
-];
 
 export default function LandingPage() {
   return (
-    <div className="min-h-full">
-      <section className="pt-20 pb-24 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border text-muted-foreground text-xs font-medium mb-8">
-              <Cpu className="w-3 h-3" />
-              AI-Powered Engineering Intelligence
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Top Navigation Bar */}
+      <header className="w-full border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-md bg-foreground flex items-center justify-center">
+              <Zap className="w-4 h-4 text-background" />
             </div>
+            <span className="font-semibold text-base">CoreLens</span>
+          </Link>
 
-            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-              Think like a
-              <span className="text-gradient-primary"> senior engineer.</span>
-            </h1>
+          {/* Center Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            <Link to="/dashboard" className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <LayoutDashboard className="w-4 h-4" />
+              Dashboard
+            </Link>
+            <Link to="/practice" className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <BookOpen className="w-4 h-4" />
+              Practice
+            </Link>
+            <Link to="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <User className="w-4 h-4" />
+              Profile
+            </Link>
+          </nav>
 
-            <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
-              CoreLens evaluates your problem-solving, reasoning clarity, code quality, and domain understanding.
-            </p>
-
-            <div className="flex items-center justify-center gap-3">
-              <Link to="/practice">
-                <Button size="lg" className="h-10 px-6 text-sm font-medium">
-                  Start Practicing <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                </Button>
-              </Link>
-              <Link to="/dashboard">
-                <Button variant="outline" size="lg" className="h-10 px-6 text-sm font-medium">
-                  View Dashboard
-                </Button>
-              </Link>
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-md bg-muted/30 text-xs font-medium">
+              <span className="text-muted-foreground">POINTS</span>
+              <span className="text-foreground ml-1">20</span>
             </div>
+            <button className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
+              <Moon className="w-4 h-4" />
+            </button>
+            <button className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors">
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <main className="flex-1 flex flex-col items-center justify-center px-6 py-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.6 }}
+          className="max-w-3xl mx-auto text-center"
+        >
+          {/* Badge */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/40 border border-border/50 text-muted-foreground text-sm mb-10"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Master technical communication
           </motion.div>
-        </div>
-      </section>
 
-      <section className="py-16 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((f, i) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.08 * i, duration: 0.4 }}
-                className="card-hover p-5"
+          {/* Headline */}
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-8"
+          >
+            Explain your way to a{" "}
+            <span className="text-muted-foreground/60">top-tier</span>{" "}
+            offer.
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.3 }}
+            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
+          >
+            CoreLens evaluates your conceptual understanding and reasoning clarity, training you to speak like a senior engineer during technical interviews.
+          </motion.p>
+
+          {/* CTA Buttons */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.4 }}
+            className="flex items-center justify-center gap-4"
+          >
+            <Link to="/domains">
+              <Button 
+                size="lg" 
+                className="h-12 px-8 text-base font-medium bg-foreground text-background hover:bg-foreground/90"
               >
-                <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <f.icon className="w-4 h-4 text-primary" />
-                </div>
-                <h3 className="font-medium text-sm mb-1">{f.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 px-6">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-xl font-semibold mb-8 text-center">How it works</h2>
-          <div className="space-y-4">
-            {[
-              "Select your domain, topic, and difficulty level",
-              "Solve the problem with the integrated code editor",
-              "Explain your reasoning via text or voice",
-              "Get AI-powered evaluation with rubric scoring & expert feedback",
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * i }}
-                className="flex items-start gap-3"
+                Get Started Free <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+            <Link to="/dashboard">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="h-12 px-8 text-base font-medium border-border/50 hover:bg-muted/30"
               >
-                <div className="w-6 h-6 rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-medium shrink-0 mt-0.5">
-                  {i + 1}
-                </div>
-                <p className="text-sm text-muted-foreground">{step}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                Sign In
+              </Button>
+            </Link>
+          </motion.div>
+        </motion.div>
+      </main>
 
-      <footer className="py-10 px-6 border-t border-border">
+      {/* Footer */}
+      <footer className="py-8 px-6 border-t border-border/30">
         <div className="max-w-7xl mx-auto text-center text-xs text-muted-foreground">
           © 2026 CoreLens. AI-Powered Engineering Intelligence Platform.
         </div>
