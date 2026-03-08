@@ -110,28 +110,42 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Domains preview */}
-        {/* Core Learning Loop */}
-        <section className="max-w-4xl mx-auto px-6 pb-16">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-2">How CoreLens Works</h2>
-            <p className="text-sm text-muted-foreground">A focused learning loop that mirrors real interview conditions</p>
+        {/* 3-Step Simple Explanation */}
+        <section className="max-w-3xl mx-auto px-6 pb-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
+            <h2 className="text-2xl font-bold mb-2">How It Works</h2>
+            <p className="text-sm text-muted-foreground">Three steps to better interview performance</p>
           </motion.div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
-              { step: "1", label: "Practice", desc: "Pick a domain, topic & difficulty", icon: "🎯" },
-              { step: "2", label: "Explain", desc: "Write code and explain your reasoning", icon: "✍️" },
-              { step: "3", label: "Evaluation", desc: "AI grades on a senior engineer rubric", icon: "📊" },
-              { step: "4", label: "Progress", desc: "Track growth across all domains", icon: "📈" },
+              { step: "1", label: "Solve a problem", desc: "Pick your domain and difficulty. Get a real engineering interview question.", icon: "🎯" },
+              { step: "2", label: "Explain your thinking", desc: "Write code and articulate your reasoning — just like a real interview.", icon: "✍️" },
+              { step: "3", label: "Get AI interview feedback", desc: "Receive structured evaluation with scores, insights, and follow-up questions.", icon: "📊" },
             ].map((s, i) => (
-              <motion.div key={s.step} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="surface-elevated p-5 text-center"
+              <motion.div key={s.step} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="surface-elevated p-6 text-center relative"
               >
-                <span className="text-2xl mb-2 block">{s.icon}</span>
-                <div className="text-xs font-bold text-primary mb-1">Step {s.step}</div>
-                <h3 className="font-semibold text-sm mb-1">{s.label}</h3>
-                <p className="text-[11px] text-muted-foreground">{s.desc}</p>
+                <span className="text-3xl mb-3 block">{s.icon}</span>
+                <div className="text-[10px] font-bold text-primary mb-1.5 uppercase tracking-wider">Step {s.step}</div>
+                <h3 className="font-semibold text-sm mb-1.5">{s.label}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
               </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Full Learning Loop */}
+        <section className="max-w-4xl mx-auto px-6 pb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
+            <h2 className="text-lg font-bold mb-1">The Complete Learning Loop</h2>
+            <p className="text-xs text-muted-foreground">Every evaluation feeds into your next practice session</p>
+          </motion.div>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            {["Practice", "Explanation", "Evaluation", "Insights", "Follow-Up", "Next Practice"].map((step, i, arr) => (
+              <div key={step} className="flex items-center gap-2">
+                <span className="px-3 py-1.5 rounded-lg bg-primary/8 text-primary text-xs font-semibold">{step}</span>
+                {i < arr.length - 1 && <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />}
+              </div>
             ))}
           </div>
         </section>

@@ -257,6 +257,7 @@ export default function WorkspacePage() {
     }
   };
 
+  const isLowReasoning = explanation.trim().length > 0 && explanation.trim().length < 80;
   const canProceedToStep2 = includeCode ? code.trim().length > 20 : true;
   const canSubmit = question && explanation.trim().length > 10;
 
@@ -520,6 +521,11 @@ export default function WorkspacePage() {
                         </span>
                       </motion.div>
                     )}
+                    {isLowReasoning && !showPasteWarning && (
+                      <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs bg-warning/10 border-warning/20 text-warning">
+                        <span>⚠ Your response appears to lack reasoning depth. Try explaining your thinking step-by-step.</span>
+                      </motion.div>
+                    )}
                     <button
                       onClick={toggleRecording}
                       className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -580,6 +586,11 @@ export default function WorkspacePage() {
                         ? `⛔ Multiple pastes detected (${pasteCount}x) — Negative points will be deducted from your score`
                         : "⚠ Paste detected — AI evaluation will check for originality"}
                     </span>
+                  </motion.div>
+                )}
+                {isLowReasoning && !showPasteWarning && (
+                  <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs bg-warning/10 border-warning/20 text-warning">
+                    <span>⚠ Your response appears to lack reasoning depth. Try explaining your thinking step-by-step.</span>
                   </motion.div>
                 )}
                 <button
