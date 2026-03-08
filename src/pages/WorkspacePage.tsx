@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText } from "lucide-react";
+import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText, Clipboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface GeneratedQuestion {
@@ -38,8 +38,33 @@ export default function WorkspacePage() {
   const [language, setLanguage] = useState("javascript");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evaluationStep, setEvaluationStep] = useState("");
-  const [currentStep, setCurrentStep] = useState<1 | 2>(1); // Step 1: Code, Step 2: Explanation
+  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const recognitionRef = useRef<any>(null);
+
+  // Copy-paste detection state
+  const [pasteCount, setPasteCount] = useState(0);
+  const [pastedChars, setPastedChars] = useState(0);
+  const [typedChars, setTypedChars] = useState(0);
+  const [showPasteWarning, setShowPasteWarning] = useState(false);
+
+  const handleExplanationPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = e.clipboardData.getData("text");
+    setPasteCount(prev => prev + 1);
+    setPastedChars(prev => prev + pastedText.length);
+    if (pastedText.length > 50) {
+      setShowPasteWarning(true);
+      setTimeout(() => setShowPasteWarning(false), 4000);
+    }
+  };
+
+  const handleExplanationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    // Only count as typed if length grew by 1-2 chars (normal typing)
+    if (newVal.length > explanation.length && newVal.length - explanation.length <= 2) {
+      setTypedChars(prev => prev + (newVal.length - explanation.length));
+    }
+    setExplanation(newVal);
+  };
 
   useEffect(() => {
     generateQuestion();
@@ -158,6 +183,13 @@ export default function WorkspacePage() {
             explanation,
             domain: question.domain,
             topic: question.topic,
+            pasteMetrics: {
+              pasteCount,
+              pastedChars,
+              typedChars,
+              totalChars: explanation.length,
+              pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0,
+            },
           }),
         }
       );
@@ -188,6 +220,13 @@ export default function WorkspacePage() {
           evaluation,
           domain: question.domain,
           topic: question.topic,
+          pasteMetrics: {
+            pasteCount,
+            pastedChars,
+            typedChars,
+            totalChars: explanation.length,
+            pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0,
+          },
         },
       });
     } catch (error) {
@@ -441,11 +480,18 @@ export default function WorkspacePage() {
 
                     <textarea
                       value={explanation}
-                      onChange={(e) => setExplanation(e.target.value)}
+                      onChange={handleExplanationChange}
+                      onPaste={handleExplanationPaste}
                       placeholder="Explain your approach, time/space complexity, and any trade-offs. The more detailed, the better your evaluation will be..."
                       className="w-full bg-muted/30 border border-border rounded-lg p-4 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary/30 h-48"
                       autoFocus
                     />
+                    {showPasteWarning && (
+                      <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-warning/10 border border-warning/20 text-xs text-warning">
+                        <Clipboard className="w-3.5 h-3.5 shrink-0" />
+                        <span>Paste detected — AI evaluation will check for originality</span>
+                      </motion.div>
+                    )}
                     <button
                       onClick={toggleRecording}
                       className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -488,11 +534,18 @@ export default function WorkspacePage() {
                 </p>
                 <textarea
                   value={explanation}
-                  onChange={(e) => setExplanation(e.target.value)}
+                  onChange={handleExplanationChange}
+                  onPaste={handleExplanationPaste}
                   placeholder="Write your detailed answer here. Include key concepts, formulas, diagram descriptions, and practical examples..."
                   className="w-full bg-muted/30 border border-border rounded-lg p-4 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary/30 h-64"
                   autoFocus
                 />
+                {showPasteWarning && (
+                  <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-warning/10 border border-warning/20 text-xs text-warning">
+                    <Clipboard className="w-3.5 h-3.5 shrink-0" />
+                    <span>Paste detected — AI evaluation will check for originality</span>
+                  </motion.div>
+                )}
                 <button
                   onClick={toggleRecording}
                   className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
