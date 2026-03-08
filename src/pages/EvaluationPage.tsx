@@ -199,7 +199,7 @@ export default function EvaluationPage() {
         <div className="flex items-center gap-3">
           <h1 className="text-[28px] font-semibold mb-1">Evaluation Results</h1>
           {saving && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-          {saved && <span className="text-xs text-accent">✓ Saved</span>}
+          {saved && <span className="text-xs text-success">✓ Saved</span>}
         </div>
         <p className="text-sm text-muted-foreground">{state?.domain || questionTitle} — {state?.topic || questionSubtopic}</p>
       </motion.div>
