@@ -75,13 +75,13 @@ export default function LandingPage() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-                Master the art of
+                Practice technical
                 <br />
-                <span className="text-gradient-primary">technical explanation</span>
+                <span className="text-gradient-primary">interviews with AI</span>
               </h1>
 
               <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
-                CoreLens evaluates your reasoning clarity and problem-solving depth — training you to communicate like a senior engineer.
+                Solve engineering problems, explain your reasoning, and get evaluated like a real technical interview.
               </p>
 
               <div className="flex items-center justify-center gap-3">
