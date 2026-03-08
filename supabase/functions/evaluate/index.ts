@@ -110,7 +110,30 @@ If reasoning is unclear, say it clearly.
 
 IMPORTANT
 
-Act like a strict technical interviewer evaluating a real candidate in a hiring interview.`;
+Act like a strict technical interviewer evaluating a real candidate in a hiring interview.
+
+--------------------------------------------------
+
+COPY-PASTE / ORIGINALITY CHECK
+
+Behavioral paste data will be provided. Analyze whether the explanation appears copy-pasted rather than authentically written by the candidate.
+
+Signs of copy-paste:
+- High paste ratio (>0.7 means most text was pasted)
+- Explanation reads like documentation, textbook, or AI-generated content
+- Writing style is inconsistent (overly formal mixed with casual)
+- Contains formatting artifacts (markdown, bullet points not matching the context)
+- Generic explanations that don't specifically address the given problem
+
+If you detect the explanation is likely copy-pasted:
+- Set copyPasteDetected to true
+- Set copyPasteConfidence to a number 0-100
+- Heavily penalize Communication Clarity (≤ 2) and Problem Understanding (≤ 3)
+- Note it in weaknesses
+
+If the explanation appears authentic and original:
+- Set copyPasteDetected to false
+- Set copyPasteConfidence to 0`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -118,7 +141,7 @@ serve(async (req) => {
   }
 
   try {
-    const { problem, code, explanation, domain, topic } = await req.json();
+    const { problem, code, explanation, domain, topic, pasteMetrics } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -126,12 +149,17 @@ serve(async (req) => {
     }
 
     // Build the evaluation prompt with actual values
-    const filledPrompt = EVALUATION_PROMPT
+    let filledPrompt = EVALUATION_PROMPT
       .replace("{{problem}}", problem || "Not provided")
       .replace("{{code}}", code || "No code submitted")
       .replace("{{explanation}}", explanation || "No explanation provided")
       .replace("{{domain}}", domain || "General")
       .replace("{{topic}}", topic || "General");
+
+    // Append paste metrics if available
+    if (pasteMetrics) {
+      filledPrompt += `\n\n--- PASTE BEHAVIORAL DATA ---\nPaste count: ${pasteMetrics.pasteCount}\nPasted characters: ${pasteMetrics.pastedChars}\nTyped characters: ${pasteMetrics.typedChars}\nTotal characters: ${pasteMetrics.totalChars}\nPaste ratio: ${(pasteMetrics.pasteRatio * 100).toFixed(1)}%\n--- END PASTE DATA ---`;
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
