@@ -293,6 +293,43 @@ export default function PracticePage() {
           )}
         </AnimatePresence>
 
+        {/* Practice Mode Type - Regular vs Interview */}
+        <AnimatePresence>
+          {selectedDifficulty && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: "auto" }} 
+              exit={{ opacity: 0, height: 0 }}
+              className="surface-elevated p-6"
+            >
+              <h2 className="text-sm font-medium mb-2">Session Type</h2>
+              <p className="text-xs text-muted-foreground mb-4">Choose your practice experience</p>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setPracticeMode("regular")}
+                  className={`p-4 rounded-lg border text-center transition-all hover:scale-[1.02] ${
+                    practiceMode === "regular" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30 bg-card"
+                  }`}
+                >
+                  <ArrowRight className="w-5 h-5 mx-auto mb-2 text-primary" />
+                  <div className="font-medium text-sm mb-1">Regular Practice</div>
+                  <p className="text-[11px] text-muted-foreground">No time limit, learn at your pace</p>
+                </button>
+                <button
+                  onClick={() => setPracticeMode("interview")}
+                  className={`p-4 rounded-lg border text-center transition-all hover:scale-[1.02] ${
+                    practiceMode === "interview" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30 bg-card"
+                  }`}
+                >
+                  <Clock className="w-5 h-5 mx-auto mb-2 text-warning" />
+                  <div className="font-medium text-sm mb-1">Interview Simulation</div>
+                  <p className="text-[11px] text-muted-foreground">Timed session with countdown pressure</p>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Start Button */}
         <motion.div 
           initial={{ opacity: 0 }} 
