@@ -268,7 +268,7 @@ export default function EvaluationPage() {
       {/* Strengths / Weaknesses / Suggestions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="surface-elevated p-5">
-          <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><CheckCircle className="w-3.5 h-3.5 text-accent" /> Strengths</h3>
+          <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><CheckCircle className="w-3.5 h-3.5 text-success" /> Strengths</h3>
           <ul className="space-y-1.5">
             {(evaluation.strengths || []).map((s: string, i: number) => <li key={i} className="text-xs text-muted-foreground flex items-start gap-2"><span className="text-success mt-0.5">•</span>{s}</li>)}
           </ul>
