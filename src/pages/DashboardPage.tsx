@@ -10,6 +10,7 @@ import { useDomainPerformance, useTopicPerformance, getStrongWeakDomains } from 
 import { useDomains } from "@/hooks/useDomains";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import OnboardingFlow from "@/components/OnboardingFlow";
 
 export default function DashboardPage() {
   const [userId, setUserId] = useState<string | null>(null);
