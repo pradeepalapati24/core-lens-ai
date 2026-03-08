@@ -23,13 +23,27 @@ const rubricLabels: Record<string, string> = {
 
 export default function EvaluationPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const state = location.state as any;
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const aiEvaluation = state?.evaluation;
   
-  const evaluation = aiEvaluation ? {
+  // If no AI evaluation data, redirect to practice
+  if (!aiEvaluation) {
+    return (
+      <div className="p-8 text-center max-w-md mx-auto mt-20">
+        <h1 className="text-xl font-semibold mb-2">No Evaluation Data</h1>
+        <p className="text-sm text-muted-foreground mb-6">Complete a practice question to see your evaluation results.</p>
+        <Link to="/practice">
+          <Button>Start Practicing</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const evaluation = {
     finalScore: aiEvaluation.finalScore || 0,
     rubric: aiEvaluation.scores || {},
     strengths: aiEvaluation.strengths || [],
@@ -39,10 +53,10 @@ export default function EvaluationPage() {
     expertExplanation: aiEvaluation.expertExplanation || aiEvaluation.overallFeedback || "",
     hiringProbability: aiEvaluation.hiringProbability || 0,
     interviewReadiness: aiEvaluation.interviewReadinessScore || 0,
-  } : mockEvaluation;
+  };
 
-  const rubric = aiEvaluation?.scores || evaluation.rubric || {};
-  const finalScore = aiEvaluation?.finalScore ?? evaluation.finalScore ?? 0;
+  const rubric = aiEvaluation.scores || {};
+  const finalScore = aiEvaluation.finalScore ?? 0;
 
   // Save evaluation results to database
   useEffect(() => {

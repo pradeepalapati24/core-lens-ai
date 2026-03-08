@@ -218,9 +218,9 @@ export default function DashboardPage() {
                     <span className="text-lg">{d.icon}</span>
                     <span className="text-sm font-medium">{d.name}</span>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                    d.type === "software" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
-                  }`}>
+                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                     d.type === "software" ? "bg-primary/10 text-primary" : "bg-success/10 text-success"
+                   }`}>
                     {d.type}
                   </span>
                 </Link>
