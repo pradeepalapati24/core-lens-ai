@@ -39,8 +39,8 @@ export default function ProfilePage() {
     fetchUser();
   }, []);
 
-  const { strong: strongDomains, weak: weakDomains, recommendations } = getStrongWeakAreas(domainPerformance);
-  const { strong: strongTopics, weak: weakTopics } = getStrongWeakAreas(topicPerformance);
+  const { strong: strongDomains, weak: weakDomains, recommendations } = getStrongWeakDomains(domainPerformance);
+  const { strong: strongTopics, weak: weakTopics } = getStrongWeakTopics(topicPerformance);
 
   // Calculate aggregate stats
   const totalSolved = domainPerformance.reduce((sum, p) => sum + p.total_questions, 0);
