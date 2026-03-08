@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw } from "lucide-react";
+import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface GeneratedQuestion {
@@ -25,7 +25,6 @@ export default function WorkspacePage() {
   const { toast } = useToast();
   const meta = location.state as any;
 
-  // Check if code should be included (IT domains can choose, Core domains always theory-only)
   const includeCode = meta?.includeCode !== false;
 
   const [question, setQuestion] = useState<GeneratedQuestion | null>(null);
@@ -39,9 +38,9 @@ export default function WorkspacePage() {
   const [language, setLanguage] = useState("javascript");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evaluationStep, setEvaluationStep] = useState("");
+  const [currentStep, setCurrentStep] = useState<1 | 2>(1); // Step 1: Code, Step 2: Explanation
   const recognitionRef = useRef<any>(null);
 
-  // Fetch question on mount
   useEffect(() => {
     generateQuestion();
   }, []);
@@ -49,6 +48,7 @@ export default function WorkspacePage() {
   const generateQuestion = async () => {
     setIsLoadingQuestion(true);
     setRevealedHints(0);
+    setCurrentStep(1);
     
     try {
       const response = await fetch(
@@ -167,23 +167,11 @@ export default function WorkspacePage() {
       if (!response.ok) {
         const errorData = await response.json();
         if (response.status === 429) {
-          toast({
-            variant: "destructive",
-            title: "Rate Limited",
-            description: "Too many requests. Please wait a moment and try again.",
-          });
+          toast({ variant: "destructive", title: "Rate Limited", description: "Too many requests. Please wait a moment and try again." });
         } else if (response.status === 402) {
-          toast({
-            variant: "destructive",
-            title: "Payment Required",
-            description: "Please add funds to continue using AI evaluation.",
-          });
+          toast({ variant: "destructive", title: "Payment Required", description: "Please add funds to continue using AI evaluation." });
         } else {
-          toast({
-            variant: "destructive",
-            title: "Evaluation Failed",
-            description: errorData.error || "Something went wrong. Please try again.",
-          });
+          toast({ variant: "destructive", title: "Evaluation Failed", description: errorData.error || "Something went wrong. Please try again." });
         }
         setIsSubmitting(false);
         return;
@@ -205,27 +193,18 @@ export default function WorkspacePage() {
     } catch (error) {
       clearInterval(stepInterval);
       console.error("Evaluation error:", error);
-      toast({
-        variant: "destructive",
-        title: "Connection Error",
-        description: "Failed to connect to the evaluation service.",
-      });
+      toast({ variant: "destructive", title: "Connection Error", description: "Failed to connect to the evaluation service." });
       setIsSubmitting(false);
     }
   };
 
-  // Determine if submit button should be enabled
-  const canSubmit = question && (includeCode ? (code.trim() && explanation.trim()) : explanation.trim());
+  const canProceedToStep2 = includeCode ? code.trim().length > 20 : true;
+  const canSubmit = question && explanation.trim().length > 10;
 
-  // Loading state
   if (isLoadingQuestion) {
     return (
       <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
           <h3 className="font-semibold text-lg mb-2">Generating Question</h3>
           <p className="text-sm text-muted-foreground">
@@ -258,7 +237,29 @@ export default function WorkspacePage() {
         <span>{question.topic}</span>
         <span className="opacity-30">/</span>
         <span>{question.subtopic}</span>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-3">
+          {/* Step indicator for IT domains */}
+          {includeCode && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setCurrentStep(1)}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                  currentStep === 1 ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Code2 className="w-3 h-3" /> Code
+              </button>
+              <ArrowRight className="w-3 h-3 text-muted-foreground/50" />
+              <button
+                onClick={() => canProceedToStep2 && setCurrentStep(2)}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                  currentStep === 2 ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
+                } ${!canProceedToStep2 ? "opacity-40 cursor-not-allowed" : ""}`}
+              >
+                <FileText className="w-3 h-3" /> Explain
+              </button>
+            </div>
+          )}
           <button 
             onClick={generateQuestion}
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -267,12 +268,10 @@ export default function WorkspacePage() {
             <RefreshCw className="w-3 h-3" />
           </button>
           {!includeCode && (
-            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent">
-              THEORY
-            </span>
+            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-success/10 text-success">THEORY</span>
           )}
           <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-            question.difficulty === "beginner" ? "bg-accent/10 text-accent" :
+            question.difficulty === "beginner" ? "bg-success/10 text-success" :
             question.difficulty === "intermediate" ? "bg-warning/10 text-warning" :
             "bg-destructive/10 text-destructive"
           }`}>
@@ -284,11 +283,7 @@ export default function WorkspacePage() {
       {/* Evaluation Loading Overlay */}
       {isSubmitting && (
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-card border border-border rounded-xl p-8 text-center max-w-sm"
-          >
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-border rounded-xl p-8 text-center max-w-sm">
             <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
             <h3 className="font-semibold text-lg mb-2">Evaluating Submission</h3>
             <p className="text-sm text-muted-foreground">{evaluationStep}</p>
@@ -296,9 +291,9 @@ export default function WorkspacePage() {
         </div>
       )}
 
-      <div className={`flex-1 grid grid-cols-1 ${includeCode ? 'lg:grid-cols-12' : 'lg:grid-cols-2'} min-h-0`}>
-        {/* Left: Question */}
-        <div className={`${includeCode ? 'lg:col-span-3' : 'lg:col-span-1'} border-r border-border overflow-y-auto p-5`}>
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0">
+        {/* Left: Question Panel */}
+        <div className={`${includeCode ? 'lg:col-span-3' : 'lg:col-span-4'} border-r border-border overflow-y-auto p-5`}>
           <h2 className="font-medium text-sm mb-3">Problem</h2>
           <div className="prose prose-sm max-w-none">
             {question.questionText.split("\n").map((line, i) => {
@@ -322,124 +317,209 @@ export default function WorkspacePage() {
               </motion.div>
             )}
           </div>
+
+          {/* Hints */}
+          <div className="mt-5">
+            <button onClick={() => setShowHints(!showHints)} className="flex items-center gap-2 text-xs font-medium text-warning">
+              <Lightbulb className="w-3.5 h-3.5" />
+              Hints ({revealedHints}/{question.hints.length})
+              {showHints ? <ChevronUp className="w-3 h-3 ml-auto" /> : <ChevronDown className="w-3 h-3 ml-auto" />}
+            </button>
+            {showHints && (
+              <div className="mt-2 space-y-2">
+                {question.hints.slice(0, revealedHints).map((h, i) => (
+                  <div key={i} className="p-2.5 rounded-lg bg-warning/5 border border-border text-xs">{h}</div>
+                ))}
+                {revealedHints < question.hints.length && (
+                  <button onClick={() => setRevealedHints(revealedHints + 1)} className="text-xs text-warning hover:underline">
+                    Reveal next hint
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Center: Editor (only shown when includeCode is true) */}
-        {includeCode && (
-          <div className="lg:col-span-6 flex flex-col min-h-0">
-            <div className="h-9 border-b border-border flex items-center px-4 gap-3">
-              <span className="text-xs text-muted-foreground font-mono">solution.js</span>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="ml-auto text-xs bg-muted/40 border border-border rounded px-2 py-1 text-muted-foreground"
+        {/* Main content area - changes based on step */}
+        {includeCode ? (
+          <AnimatePresence mode="wait">
+            {currentStep === 1 ? (
+              /* Step 1: Code Editor */
+              <motion.div
+                key="step-code"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="lg:col-span-9 flex flex-col min-h-0"
               >
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="typescript">TypeScript</option>
-                <option value="cpp">C++</option>
-              </select>
-              <button className="flex items-center gap-1 text-xs text-accent px-2 py-1 rounded hover:bg-accent/10 transition-colors">
-                <Play className="w-3 h-3" /> Run
-              </button>
+                <div className="h-9 border-b border-border flex items-center px-4 gap-3">
+                  <span className="text-xs text-muted-foreground font-mono">solution.js</span>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="ml-auto text-xs bg-muted/40 border border-border rounded px-2 py-1 text-muted-foreground"
+                  >
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="cpp">C++</option>
+                  </select>
+                  <button className="flex items-center gap-1 text-xs text-success px-2 py-1 rounded hover:bg-success/10 transition-colors">
+                    <Play className="w-3 h-3" /> Run
+                  </button>
+                </div>
+                <div className="flex-1 min-h-0">
+                  <Editor
+                    height="100%"
+                    defaultLanguage={language}
+                    theme="vs-dark"
+                    value={code}
+                    onChange={(v) => setCode(v || "")}
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 13,
+                      fontFamily: "JetBrains Mono",
+                      padding: { top: 12 },
+                      scrollBeyondLastLine: false,
+                      lineNumbers: "on",
+                      renderLineHighlight: "all",
+                      bracketPairColorization: { enabled: true },
+                    }}
+                  />
+                </div>
+                <div className="p-4 border-t border-border flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    Write your solution, then proceed to explain your approach
+                  </p>
+                  <Button 
+                    onClick={() => setCurrentStep(2)} 
+                    disabled={!canProceedToStep2}
+                    className="h-9 px-6 text-sm font-medium"
+                  >
+                    Next: Explain <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                  </Button>
+                </div>
+              </motion.div>
+            ) : (
+              /* Step 2: Explanation */
+              <motion.div
+                key="step-explain"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="lg:col-span-9 flex flex-col min-h-0"
+              >
+                <div className="h-9 border-b border-border flex items-center px-4 gap-3">
+                  <button 
+                    onClick={() => setCurrentStep(1)}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ArrowLeft className="w-3 h-3" /> Back to Code
+                  </button>
+                  <span className="text-xs text-muted-foreground ml-auto">Step 2 of 2</span>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6">
+                  <div className="max-w-2xl mx-auto">
+                    <h3 className="font-medium text-lg mb-2">Explain Your Thinking</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Now explain your approach, time/space complexity, trade-offs, and any edge cases you considered.
+                    </p>
+
+                    {/* Code preview */}
+                    <div className="mb-6 p-4 rounded-lg bg-muted/20 border border-border">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Code2 className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-xs font-medium">Your Code</span>
+                      </div>
+                      <pre className="text-xs text-muted-foreground font-mono overflow-x-auto max-h-32 overflow-y-auto">
+                        {code.slice(0, 500)}{code.length > 500 ? "..." : ""}
+                      </pre>
+                    </div>
+
+                    <textarea
+                      value={explanation}
+                      onChange={(e) => setExplanation(e.target.value)}
+                      placeholder="Explain your approach, time/space complexity, and any trade-offs. The more detailed, the better your evaluation will be..."
+                      className="w-full bg-muted/30 border border-border rounded-lg p-4 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary/30 h-48"
+                      autoFocus
+                    />
+                    <button
+                      onClick={toggleRecording}
+                      className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                        isRecording ? "bg-destructive/15 text-destructive" : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                      }`}
+                    >
+                      {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                      {isRecording ? "Stop Recording" : "Voice Explain"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-4 border-t border-border flex items-center justify-between">
+                  <Button variant="ghost" onClick={() => setCurrentStep(1)} className="h-9 text-sm">
+                    <ArrowLeft className="w-3.5 h-3.5 mr-1.5" /> Back to Code
+                  </Button>
+                  <Button 
+                    className="h-9 px-6 font-medium text-sm" 
+                    onClick={handleSubmit} 
+                    disabled={!canSubmit || isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Evaluating...</>
+                    ) : (
+                      <><Send className="w-3.5 h-3.5 mr-1.5" /> Submit Solution</>
+                    )}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        ) : (
+          /* Theory-only mode - single step explanation */
+          <div className="lg:col-span-8 flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="max-w-2xl mx-auto">
+                <h3 className="font-medium text-lg mb-2">Your Answer & Explanation</h3>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Provide a detailed explanation of the concept, your understanding, and real-world applications.
+                </p>
+                <textarea
+                  value={explanation}
+                  onChange={(e) => setExplanation(e.target.value)}
+                  placeholder="Write your detailed answer here. Include key concepts, formulas, diagram descriptions, and practical examples..."
+                  className="w-full bg-muted/30 border border-border rounded-lg p-4 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary/30 h-64"
+                  autoFocus
+                />
+                <button
+                  onClick={toggleRecording}
+                  className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    isRecording ? "bg-destructive/15 text-destructive" : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                  }`}
+                >
+                  {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  {isRecording ? "Stop Recording" : "Voice Explain"}
+                </button>
+              </div>
             </div>
-            <div className="flex-1 min-h-0">
-              <Editor
-                height="100%"
-                defaultLanguage={language}
-                theme="vs-dark"
-                value={code}
-                onChange={(v) => setCode(v || "")}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 13,
-                  fontFamily: "JetBrains Mono",
-                  padding: { top: 12 },
-                  scrollBeyondLastLine: false,
-                  lineNumbers: "on",
-                  renderLineHighlight: "all",
-                  bracketPairColorization: { enabled: true },
-                }}
-              />
+
+            <div className="p-4 border-t border-border flex justify-end">
+              <Button 
+                className="h-9 px-6 font-medium text-sm" 
+                onClick={handleSubmit} 
+                disabled={!canSubmit || isSubmitting}
+              >
+                {isSubmitting ? (
+                  <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Evaluating...</>
+                ) : (
+                  <><Send className="w-3.5 h-3.5 mr-1.5" /> Submit Answer</>
+                )}
+              </Button>
             </div>
           </div>
         )}
-
-        {/* Right: Explanation */}
-        <div className={`${includeCode ? 'lg:col-span-3' : 'lg:col-span-1'} border-l border-border flex flex-col min-h-0`}>
-          <div className="flex-1 overflow-y-auto p-5">
-            <h3 className="font-medium text-sm mb-3">
-              {includeCode ? "Explain Your Thinking" : "Your Answer & Explanation"}
-            </h3>
-            <p className="text-xs text-muted-foreground mb-3">
-              {includeCode
-                ? "Explain your approach, time/space complexity, and any trade-offs..."
-                : "Provide a detailed explanation of the concept, your understanding, and real-world applications..."
-              }
-            </p>
-            <textarea
-              value={explanation}
-              onChange={(e) => setExplanation(e.target.value)}
-              placeholder={includeCode
-                ? "Explain your approach, time/space complexity, and any trade-offs..."
-                : "Write your detailed answer here. Include key concepts, formulas, diagrams descriptions, and practical examples..."
-              }
-              className={`w-full bg-muted/30 border border-border rounded-lg p-3 text-xs resize-none focus:outline-none focus:ring-1 focus:ring-primary/30 ${
-                includeCode ? 'h-36' : 'h-64'
-              }`}
-            />
-            <button
-              onClick={toggleRecording}
-              className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                isRecording ? "bg-destructive/15 text-destructive" : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-              }`}
-            >
-              {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-              {isRecording ? "Stop Recording" : "Voice Explain"}
-            </button>
-
-            <div className="mt-5">
-              <button onClick={() => setShowHints(!showHints)} className="flex items-center gap-2 text-xs font-medium text-warning">
-                <Lightbulb className="w-3.5 h-3.5" />
-                Hints ({revealedHints}/{question.hints.length})
-                {showHints ? <ChevronUp className="w-3 h-3 ml-auto" /> : <ChevronDown className="w-3 h-3 ml-auto" />}
-              </button>
-              {showHints && (
-                <div className="mt-2 space-y-2">
-                  {question.hints.slice(0, revealedHints).map((h, i) => (
-                    <div key={i} className="p-2.5 rounded-lg bg-warning/5 border border-border text-xs">{h}</div>
-                  ))}
-                  {revealedHints < question.hints.length && (
-                    <button
-                      onClick={() => setRevealedHints(revealedHints + 1)}
-                      className="text-xs text-warning hover:underline"
-                    >
-                      Reveal next hint
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="p-4 border-t border-border">
-            <Button 
-              className="w-full h-9 font-medium text-sm" 
-              onClick={handleSubmit} 
-              disabled={!canSubmit || isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Evaluating...
-                </>
-              ) : (
-                <>
-                  <Send className="w-3.5 h-3.5 mr-1.5" /> {includeCode ? "Submit Solution" : "Submit Answer"}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );
