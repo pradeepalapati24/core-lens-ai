@@ -1,11 +1,23 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { mockQuestion } from "@/lib/mockData";
-import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2 } from "lucide-react";
+import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface GeneratedQuestion {
+  id: string;
+  domain: string;
+  topic: string;
+  subtopic: string;
+  difficulty: string;
+  questionText: string;
+  learningContext: string;
+  hints: string[];
+  expectedConcepts: string[];
+  createdAt: string;
+}
 
 export default function WorkspacePage() {
   const navigate = useNavigate();
@@ -16,7 +28,9 @@ export default function WorkspacePage() {
   // Check if code should be included (IT domains can choose, Core domains always theory-only)
   const includeCode = meta?.includeCode !== false;
 
-  const [code, setCode] = useState(`// Write your solution here\n\nfunction isValidBST(root) {\n  \n}\n`);
+  const [question, setQuestion] = useState<GeneratedQuestion | null>(null);
+  const [isLoadingQuestion, setIsLoadingQuestion] = useState(true);
+  const [code, setCode] = useState(`// Write your solution here\n\nfunction solution() {\n  \n}\n`);
   const [explanation, setExplanation] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [showHints, setShowHints] = useState(false);
@@ -27,7 +41,51 @@ export default function WorkspacePage() {
   const [evaluationStep, setEvaluationStep] = useState("");
   const recognitionRef = useRef<any>(null);
 
-  const question = mockQuestion;
+  // Fetch question on mount
+  useEffect(() => {
+    generateQuestion();
+  }, []);
+
+  const generateQuestion = async () => {
+    setIsLoadingQuestion(true);
+    setRevealedHints(0);
+    
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-question`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            domain: meta?.domain || "Data Structures",
+            topic: meta?.topic || "Trees",
+            subtopic: meta?.subtopic || "Binary Search Tree",
+            difficulty: meta?.difficulty || "intermediate",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate question");
+      }
+
+      const questionData = await response.json();
+      setQuestion(questionData);
+    } catch (error) {
+      console.error("Error generating question:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to generate question. Please try again.",
+      });
+    } finally {
+      setIsLoadingQuestion(false);
+    }
+  };
 
   const toggleRecording = () => {
     if (isRecording) {
@@ -64,6 +122,8 @@ export default function WorkspacePage() {
   };
 
   const handleSubmit = async () => {
+    if (!question) return;
+    
     setIsSubmitting(true);
     
     const evaluationSteps = [
@@ -96,8 +156,8 @@ export default function WorkspacePage() {
             problem: question.questionText,
             code: includeCode ? code : null,
             explanation,
-            domain: meta?.domain || question.domain,
-            topic: meta?.topic || question.topic,
+            domain: question.domain,
+            topic: question.topic,
           }),
         }
       );
@@ -138,8 +198,8 @@ export default function WorkspacePage() {
           question,
           includeCode,
           evaluation,
-          domain: meta?.domain || question.domain,
-          topic: meta?.topic || question.topic,
+          domain: question.domain,
+          topic: question.topic,
         },
       });
     } catch (error) {
@@ -155,29 +215,68 @@ export default function WorkspacePage() {
   };
 
   // Determine if submit button should be enabled
-  const canSubmit = includeCode ? (code.trim() && explanation.trim()) : explanation.trim();
+  const canSubmit = question && (includeCode ? (code.trim() && explanation.trim()) : explanation.trim());
+
+  // Loading state
+  if (isLoadingQuestion) {
+    return (
+      <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-2">Generating Question</h3>
+          <p className="text-sm text-muted-foreground">
+            Creating a {meta?.difficulty || "intermediate"} question for {meta?.subtopic || "your selected topic"}...
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (!question) {
+    return (
+      <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Failed to load question</p>
+          <Button onClick={generateQuestion}>
+            <RefreshCw className="w-4 h-4 mr-2" /> Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[calc(100vh-3rem)] flex flex-col">
       {/* Breadcrumb bar */}
       <div className="h-9 border-b border-border flex items-center px-4 gap-2 shrink-0 text-xs text-muted-foreground">
-        <span>{meta?.domain || question.domain}</span>
+        <span>{question.domain}</span>
         <span className="opacity-30">/</span>
-        <span>{meta?.topic || question.topic}</span>
+        <span>{question.topic}</span>
         <span className="opacity-30">/</span>
-        <span>{meta?.subtopic || question.subtopic}</span>
+        <span>{question.subtopic}</span>
         <div className="ml-auto flex items-center gap-2">
+          <button 
+            onClick={generateQuestion}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            title="Generate new question"
+          >
+            <RefreshCw className="w-3 h-3" />
+          </button>
           {!includeCode && (
             <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent">
               THEORY
             </span>
           )}
           <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-            (meta?.difficulty || question.difficulty) === "beginner" ? "bg-accent/10 text-accent" :
-            (meta?.difficulty || question.difficulty) === "intermediate" ? "bg-warning/10 text-warning" :
+            question.difficulty === "beginner" ? "bg-accent/10 text-accent" :
+            question.difficulty === "intermediate" ? "bg-warning/10 text-warning" :
             "bg-destructive/10 text-destructive"
           }`}>
-            {(meta?.difficulty || question.difficulty).toUpperCase()}
+            {question.difficulty.toUpperCase()}
           </span>
         </div>
       </div>
@@ -219,11 +318,7 @@ export default function WorkspacePage() {
             </button>
             {showContext && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 p-3 rounded-lg bg-primary/5 border border-border">
-                {question.learningContext.split("\n").map((line, i) => (
-                  <p key={i} className="text-xs text-muted-foreground mb-1">
-                    {line.startsWith("**") ? <strong className="text-foreground">{line.replace(/\*\*/g, "")}</strong> : line}
-                  </p>
-                ))}
+                <p className="text-xs text-muted-foreground">{question.learningContext}</p>
               </motion.div>
             )}
           </div>
