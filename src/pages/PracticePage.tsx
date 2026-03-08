@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { domains } from "@/lib/domains";
 import { Domain, Topic, Subtopic, Difficulty } from "@/lib/types";
@@ -14,12 +14,27 @@ const difficultyConfig: { value: Difficulty; label: string; icon: any; color: st
 
 export default function PracticePage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
-  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
+  const location = useLocation();
+  const incomingState = location.state as { selectedDomain?: Domain; includeCode?: boolean } | null;
+
+  // If coming from DomainsPage with a pre-selected domain, start at step 1 (Topic selection)
+  const [step, setStep] = useState(incomingState?.selectedDomain ? 1 : 0);
+  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(incomingState?.selectedDomain || null);
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [selectedSubtopic, setSelectedSubtopic] = useState<Subtopic | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<"all" | "it" | "core">("all");
+  
+  // Track if code should be included (from DomainsPage modal or default based on domain category)
+  const [includeCode, setIncludeCode] = useState<boolean>(incomingState?.includeCode ?? true);
+
+  // Update includeCode when domain changes (for direct practice page usage)
+  useEffect(() => {
+    if (selectedDomain && !incomingState?.selectedDomain) {
+      // If user selected domain directly on practice page, Core domains default to no code
+      setIncludeCode(selectedDomain.category === "it");
+    }
+  }, [selectedDomain, incomingState]);
 
   const filteredDomains = categoryFilter === "all" ? domains : domains.filter((d) => d.category === categoryFilter);
 
@@ -30,8 +45,16 @@ export default function PracticePage() {
         topic: selectedTopic?.name,
         subtopic: selectedSubtopic?.name,
         difficulty: selectedDifficulty,
+        includeCode,
       },
     });
+  };
+
+  const handleDomainSelect = (d: Domain) => {
+    setSelectedDomain(d);
+    // Default: IT domains include code, Core domains don't
+    setIncludeCode(d.category === "it");
+    setStep(1);
   };
 
   const steps = [
@@ -52,7 +75,7 @@ export default function PracticePage() {
         {filteredDomains.map((d) => (
           <button
             key={d.id}
-            onClick={() => { setSelectedDomain(d); setStep(1); }}
+            onClick={() => handleDomainSelect(d)}
             className={`card-hover text-left p-[18px] ${selectedDomain?.id === d.id ? "border-primary/30" : ""}`}
           >
             <div className="text-xl mb-1.5">{d.icon}</div>
@@ -150,12 +173,29 @@ export default function PracticePage() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-[28px] font-semibold mb-1">{stepTitles[step]}</h1>
+        <div className="flex items-center gap-3 mb-1">
+          <h1 className="text-[28px] font-semibold">{stepTitles[step]}</h1>
+          {selectedDomain && !includeCode && (
+            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent">
+              THEORY MODE
+            </span>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground">{stepDescs[step]}</p>
       </div>
 
       {step > 0 && (
-        <button onClick={() => setStep(step - 1)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-4 transition-colors">
+        <button 
+          onClick={() => {
+            if (step === 1 && incomingState?.selectedDomain) {
+              // Go back to domains page if came from there
+              navigate("/domains");
+            } else {
+              setStep(step - 1);
+            }
+          }} 
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-4 transition-colors"
+        >
           <ArrowLeft className="w-3.5 h-3.5" /> Back
         </button>
       )}
