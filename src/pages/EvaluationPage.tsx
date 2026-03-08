@@ -276,6 +276,19 @@ export default function EvaluationPage() {
         </motion.div>
       )}
 
+      {/* Negative Points Penalty Banner */}
+      {hasMultiplePastes && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/30">
+          <span className="text-2xl">⛔</span>
+          <div className="flex-1">
+            <h4 className="text-sm font-bold text-destructive">Negative Points Applied: -{negativePenalty} pts</h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              You pasted {pasteMetrics?.pasteCount}x during your explanation. First paste triggers a warning (⚠), but repeated pasting results in point deductions. Write your own explanations to earn full points.
+            </p>
+          </div>
+        </motion.div>
+      )}
+
       {/* Score Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="surface-elevated p-6 text-center">
