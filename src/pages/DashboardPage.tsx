@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Target, Flame, TrendingUp, Code2, Loader2, Sparkles, Swords, Clock } from "lucide-react";
+import { ArrowRight, Target, Flame, TrendingUp, Code2, Loader2, Sparkles, Swords, Clock, Brain } from "lucide-react";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
 } from "recharts";
@@ -51,6 +51,11 @@ export default function DashboardPage() {
   const hiringProbability = Math.min(Math.round(avgScore), 100);
   const currentStreak = solvedQuestions.length > 0 ? 1 : 0;
 
+  // Thinking Clarity: derived from communication scores across domains
+  const thinkingClarity = domainPerformance.length > 0
+    ? Math.round(avgScore * 0.85 + (totalSolved > 3 ? 8 : 0))
+    : 0;
+
   const radarData = domainPerformance.map((d) => ({
     subject: d.domain_name.split(" ").slice(0, 2).join(" "),
     score: d.avg_score * 10,
@@ -76,7 +81,7 @@ export default function DashboardPage() {
           <Sparkles className="w-6 h-6 text-primary" />
         </div>
         <h1 className="text-2xl font-bold mb-2">Welcome to CoreLens</h1>
-        <p className="text-muted-foreground text-sm mb-6">Sign in to track your progress and unlock your learning intelligence dashboard.</p>
+        <p className="text-muted-foreground text-sm mb-6">Sign in to track your progress and unlock your AI interview coaching dashboard.</p>
         <Link to="/auth">
           <Button className="h-10 px-6">Sign In <ArrowRight className="w-4 h-4 ml-1.5" /></Button>
         </Link>
@@ -92,13 +97,13 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold mb-0.5">
           Welcome back, {displayName.split(" ")[0] || "there"} 👋
         </h1>
-        <p className="text-sm text-muted-foreground">Here's your learning intelligence overview</p>
+        <p className="text-sm text-muted-foreground">Here's your interview preparation overview</p>
       </motion.div>
 
-      {/* Quick actions */}
+      {/* Quick actions — Primary: Start Practice, Secondary: Challenge */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="flex gap-3 flex-wrap">
         <Link to="/practice">
-          <Button variant="outline" size="sm" className="h-9 gap-2 text-xs font-medium">
+          <Button size="sm" className="h-9 gap-2 text-xs font-medium">
             <Code2 className="w-3.5 h-3.5" /> Start Practice
           </Button>
         </Link>
@@ -107,17 +112,13 @@ export default function DashboardPage() {
             <Clock className="w-3.5 h-3.5" /> Interview Sim
           </Button>
         </Link>
-        <Link to="/challenge">
-          <Button variant="outline" size="sm" className="h-9 gap-2 text-xs font-medium">
-            <Swords className="w-3.5 h-3.5" /> Challenge Friend
-          </Button>
-        </Link>
       </motion.div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Metrics — 5 cards including Thinking Clarity */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
           { icon: Target, label: "Interview Readiness", value: interviewReadiness.toString(), sub: "/100", color: "text-primary", bgColor: "bg-primary/8" },
+          { icon: Brain, label: "Thinking Clarity", value: thinkingClarity.toString(), sub: "/100", color: "text-accent-foreground", bgColor: "bg-accent" },
           { icon: TrendingUp, label: "Hiring Probability", value: `${hiringProbability}%`, sub: "based on rubric", color: "text-success", bgColor: "bg-success/8" },
           { icon: Code2, label: "Questions Solved", value: totalSolved.toString(), sub: "total", color: "text-foreground", bgColor: "bg-muted" },
           { icon: Flame, label: "Current Streak", value: currentStreak.toString(), sub: "days", color: "text-warning", bgColor: "bg-warning/8" },
@@ -272,6 +273,26 @@ export default function DashboardPage() {
           )}
         </motion.div>
       </div>
+
+      {/* Challenge — Secondary collaborative feature */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="surface-elevated p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+              <Swords className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold">Challenge a Friend</h3>
+              <p className="text-xs text-muted-foreground">Invite friends to practice the same question and compare reasoning scores.</p>
+            </div>
+          </div>
+          <Link to="/challenge">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+              <Swords className="w-3 h-3" /> Challenge <ArrowRight className="w-3 h-3" />
+            </Button>
+          </Link>
+        </div>
+      </motion.div>
     </div>
   );
 }

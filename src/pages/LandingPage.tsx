@@ -215,7 +215,7 @@ export default function LandingPage() {
             </div>
             <span className="text-xs text-muted-foreground">© 2026 CoreLens</span>
           </div>
-          <span className="text-[11px] text-muted-foreground">AI-Powered Engineering Intelligence</span>
+          <span className="text-[11px] text-muted-foreground">AI Technical Interview Coach for Engineers</span>
         </div>
       </footer>
     </div>
