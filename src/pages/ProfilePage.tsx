@@ -160,7 +160,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className={`text-sm font-semibold ${currentLevel.color}`}>{currentLevel.name}</span>
-              <span className="text-xs text-muted-foreground">· Score: {avgScore.toFixed(1)}/10</span>
+              <span className="text-xs text-muted-foreground">· Score: {Math.round(avgScore)}/100</span>
             </div>
             <span className="text-xs text-muted-foreground">
               {Number(pointsNeeded) > 0 ? `${pointsNeeded} pts to ${nextLevel}` : "Max level reached!"}
