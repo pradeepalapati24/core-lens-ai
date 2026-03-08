@@ -14,6 +14,85 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenges: {
+        Row: {
+          challenged_explanation: string | null
+          challenged_id: string | null
+          challenged_score: number | null
+          challenger_explanation: string | null
+          challenger_id: string
+          challenger_score: number | null
+          created_at: string | null
+          difficulty: string
+          domain_id: string | null
+          expires_at: string | null
+          id: string
+          question_text: string | null
+          share_code: string | null
+          status: string
+          subtopic_id: string | null
+          topic_id: string | null
+        }
+        Insert: {
+          challenged_explanation?: string | null
+          challenged_id?: string | null
+          challenged_score?: number | null
+          challenger_explanation?: string | null
+          challenger_id: string
+          challenger_score?: number | null
+          created_at?: string | null
+          difficulty?: string
+          domain_id?: string | null
+          expires_at?: string | null
+          id?: string
+          question_text?: string | null
+          share_code?: string | null
+          status?: string
+          subtopic_id?: string | null
+          topic_id?: string | null
+        }
+        Update: {
+          challenged_explanation?: string | null
+          challenged_id?: string | null
+          challenged_score?: number | null
+          challenger_explanation?: string | null
+          challenger_id?: string
+          challenger_score?: number | null
+          created_at?: string | null
+          difficulty?: string
+          domain_id?: string | null
+          expires_at?: string | null
+          id?: string
+          question_text?: string | null
+          share_code?: string | null
+          status?: string
+          subtopic_id?: string | null
+          topic_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenges_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenges_subtopic_id_fkey"
+            columns: ["subtopic_id"]
+            isOneToOne: false
+            referencedRelation: "subtopics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenges_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       domains: {
         Row: {
           created_at: string | null
