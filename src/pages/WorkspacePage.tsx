@@ -183,6 +183,13 @@ export default function WorkspacePage() {
             explanation,
             domain: question.domain,
             topic: question.topic,
+            pasteMetrics: {
+              pasteCount,
+              pastedChars,
+              typedChars,
+              totalChars: explanation.length,
+              pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0,
+            },
           }),
         }
       );
