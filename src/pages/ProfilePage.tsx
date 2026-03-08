@@ -285,11 +285,11 @@ export default function ProfilePage() {
                     <div>
                       <span className="text-sm font-medium">{d.domain_name}</span>
                       <span className="text-[10px] text-muted-foreground ml-2">
-                        {getPointsToNext(d.avg_score).pointsNeeded} pts to {getPointsToNext(d.avg_score).nextLevel}
+                        {getPointsToNext(d.avg_score * 10).pointsNeeded} pts to {getPointsToNext(d.avg_score * 10).nextLevel}
                       </span>
                     </div>
                   </div>
-                  <span className="text-sm font-mono text-destructive">{d.avg_score.toFixed(1)}</span>
+                  <span className="text-sm font-mono text-destructive">{Math.round(d.avg_score * 10)}</span>
                 </div>
               ))}
               {weakTopics.slice(0, 3).map((t: any) => (
