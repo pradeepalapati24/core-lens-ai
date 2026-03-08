@@ -12,16 +12,12 @@ const features = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-full bg-background">
       {/* Hero */}
-      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+      <section className="relative pt-16 pb-20 px-6 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="max-w-4xl mx-auto text-center relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-8">
               <Cpu className="w-3.5 h-3.5" />
               AI-Powered Engineering Intelligence
@@ -55,7 +51,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="py-20 px-6">
+      <section className="py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((f, i) => (
@@ -64,7 +60,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * i, duration: 0.5 }}
-                className="surface-elevated rounded-xl p-6 hover:border-primary/30 transition-colors"
+                className="card-glow rounded-xl p-6"
               >
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                   <f.icon className="w-5 h-5 text-primary" />
@@ -78,7 +74,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-20 px-6 bg-muted/30">
+      <section className="py-16 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-12">How CoreLens Works</h2>
           <div className="space-y-6 text-left">
