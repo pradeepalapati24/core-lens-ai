@@ -253,7 +253,7 @@ export default function ProfilePage() {
                     <span className="text-lg">{d.domain_icon}</span>
                     <span className="text-sm font-medium">{d.domain_name}</span>
                   </div>
-                  <span className="text-sm font-mono text-success">{d.avg_score.toFixed(1)}</span>
+                  <span className="text-sm font-mono text-success">{Math.round(d.avg_score * 10)}</span>
                 </div>
               ))}
               {strongTopics.slice(0, 3).map((t: any) => (
