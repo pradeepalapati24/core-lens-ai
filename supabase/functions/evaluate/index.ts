@@ -210,9 +210,12 @@ serve(async (req) => {
                       hiringProbability: { type: "number", minimum: 0, maximum: 100 },
                       copyPasteDetected: { type: "boolean" },
                       copyPasteConfidence: { type: "number", minimum: 0, maximum: 100 },
-                      copyPasteReason: { type: "string" }
+                      copyPasteReason: { type: "string" },
+                      reasoningDepthScore: { type: "number", minimum: 0, maximum: 10, description: "How deeply the candidate reasons about the problem vs surface-level answers" },
+                      aiLearningInsights: { type: "array", items: { type: "string" }, description: "2-3 personalized learning insights based on this evaluation" },
+                      recommendedFocusArea: { type: "string", description: "The weakest rubric area that needs most practice" }
                     },
-                    required: ["scores", "finalScore", "strengths", "weaknesses", "improvements", "overallFeedback", "expertExplanation", "interviewReadinessScore", "hiringProbability", "copyPasteDetected", "copyPasteConfidence"]
+                    required: ["scores", "finalScore", "strengths", "weaknesses", "improvements", "overallFeedback", "expertExplanation", "interviewReadinessScore", "hiringProbability", "copyPasteDetected", "copyPasteConfidence", "reasoningDepthScore", "aiLearningInsights", "recommendedFocusArea"]
               }
             }
           }
