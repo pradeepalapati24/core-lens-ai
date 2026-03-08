@@ -71,7 +71,7 @@ export default function LandingPage() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs font-medium mb-8">
                 <Sparkles className="w-3 h-3" />
-                AI-Powered Interview Intelligence
+                AI Technical Interview Coach for Engineers
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
