@@ -22,10 +22,20 @@ const queryClient = new QueryClient();
 function AppLayout() {
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
+  const isAuthPage = location.pathname === "/auth";
+  const isResetPage = location.pathname === "/reset-password";
 
-  // Landing page has its own full-width layout without sidebar
+  // Landing page and auth pages have their own full-width layout without sidebar
   if (isLandingPage) {
     return <LandingPage />;
+  }
+
+  if (isAuthPage) {
+    return <AuthPage />;
+  }
+
+  if (isResetPage) {
+    return <ResetPasswordPage />;
   }
 
   return (
