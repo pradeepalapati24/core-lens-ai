@@ -6,7 +6,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { useDomainPerformance, useTopicPerformance, getStrongWeakAreas } from "@/hooks/useUserPerformance";
+import { useDomainPerformance, useTopicPerformance, getStrongWeakDomains, getStrongWeakTopics } from "@/hooks/useUserPerformance";
 import { useDomains } from "@/hooks/useDomains";
 
 export default function ProfilePage() {
