@@ -126,16 +126,16 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
-      <header className="w-full border-b border-border/50">
+      <header className="w-full border-b border-border/50 glass sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center">
           <Link to="/" className="flex items-center gap-2 group">
             <motion.div 
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              className="w-7 h-7 rounded-md bg-foreground flex items-center justify-center"
+              whileHover={{ scale: 1.05 }}
+              className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm"
             >
-              <Zap className="w-4 h-4 text-background" />
+              <Zap className="w-4 h-4 text-primary-foreground" />
             </motion.div>
-            <span className="font-semibold text-base">CoreLens</span>
+            <span className="font-bold text-base">CoreLens</span>
           </Link>
         </div>
       </header>
