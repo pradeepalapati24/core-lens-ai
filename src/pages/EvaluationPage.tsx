@@ -183,7 +183,7 @@ export default function EvaluationPage() {
     lost: 10 - (val as number),
   }));
 
-  const scoreColor = finalScore >= 7 ? "text-accent" : finalScore >= 5 ? "text-warning" : "text-destructive";
+  const scoreColor = finalScore >= 7 ? "text-success" : finalScore >= 5 ? "text-warning" : "text-destructive";
   const hiringProb = aiEvaluation?.hiringProbability ?? Math.round(finalScore * 10);
 
   const questionTitle = state?.question?.topic || "Evaluation";
