@@ -18,16 +18,31 @@ export default function ResetPasswordPage() {
   const [isRecovery, setIsRecovery] = useState(false);
 
   useEffect(() => {
-    // Check if this is a recovery session
+    // Listen for PASSWORD_RECOVERY event from Supabase auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsRecovery(true);
+      }
+    });
+
+    // Also check if already in a recovery session (hash params)
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get("type");
-    
     if (type === "recovery") {
       setIsRecovery(true);
-    } else {
-      // Not a recovery link, redirect to auth
-      navigate("/auth");
     }
+
+    // Check if there's already a session (user came via recovery link)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsRecovery(true);
+      } else if (!window.location.hash.includes("recovery")) {
+        // No session and no recovery hash, redirect
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const handleResetPassword = async (e: React.FormEvent) => {

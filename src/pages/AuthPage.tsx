@@ -76,11 +76,20 @@ export default function AuthPage() {
     });
 
     if (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign up failed",
-        description: error.message,
-      });
+      if (error.message.includes("already registered") || error.message.includes("already exists")) {
+        toast({
+          variant: "destructive",
+          title: "Account already exists",
+          description: "This email is already registered. Please sign in or use 'Forgot password' to reset your password.",
+        });
+        setMode("signin");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Sign up failed",
+          description: error.message,
+        });
+      }
     } else {
       toast({
         title: "Account created!",
