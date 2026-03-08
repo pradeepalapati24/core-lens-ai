@@ -196,7 +196,7 @@ export default function DashboardPage() {
                       {new Date(e.solved_at).toLocaleDateString()}
                     </span>
                     <span className={`font-mono text-xs font-semibold ${
-                      e.score >= 7 ? "text-accent" : e.score >= 5 ? "text-warning" : "text-destructive"
+                      e.score >= 7 ? "text-success" : e.score >= 5 ? "text-warning" : "text-destructive"
                     }`}>
                       {Number(e.score).toFixed(1)}
                     </span>
