@@ -1,207 +1,186 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Zap, Moon, Sun, Sparkles } from "lucide-react";
+import { ArrowRight, Zap, Sparkles, Code2, Brain, BarChart3, Shield, Users, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+
+const features = [
+  { icon: Brain, title: "AI-Powered Evaluation", description: "Get feedback graded on a senior engineer rubric — reasoning, clarity, depth." },
+  { icon: Code2, title: "Code + Explanation", description: "Write code then explain your approach. Two-step flow mirrors real interviews." },
+  { icon: BarChart3, title: "Progress Analytics", description: "Track growth across 4 domains, 22 topics, and 143 subtopics." },
+  { icon: Shield, title: "Interview Simulation", description: "Timed sessions with countdown pressure. Practice under real conditions." },
+  { icon: Users, title: "Challenge Friends", description: "Compete on the same topic. Share links or invite users directly." },
+  { icon: Sparkles, title: "Skill Reports", description: "Export shareable proficiency summaries for resumes and LinkedIn." },
+];
+
+const domains = [
+  { icon: "💻", name: "IT / Software", topics: "6 topics · 60+ subtopics" },
+  { icon: "⚡", name: "Core Electronics", topics: "6 topics · 40+ subtopics" },
+  { icon: "🌐", name: "IoT Systems", topics: "5 topics · 25+ subtopics" },
+  { icon: "🔬", name: "VLSI Design", topics: "5 topics · 25+ subtopics" },
+];
 
 export default function LandingPage() {
-  const [isDark, setIsDark] = useState(true);
-
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-hidden relative">
-      {/* Gradient background effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ duration: 2 }}
-          className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-[120px]"
-        />
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.3 }}
-          transition={{ duration: 2, delay: 0.5 }}
-          className="absolute top-1/3 -right-32 w-80 h-80 bg-accent/20 rounded-full blur-[100px]"
-        />
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.2 }}
-          transition={{ duration: 2, delay: 1 }}
-          className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-primary/15 rounded-full blur-[80px]"
-        />
-      </div>
-
-      {/* Top Navigation Bar */}
-      <header className="w-full border-b border-border/50 relative z-10 backdrop-blur-sm bg-background/80">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          {/* Logo */}
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Nav */}
+      <header className="w-full border-b border-border/50 sticky top-0 z-50 glass">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
             <motion.div 
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-7 h-7 rounded-md bg-foreground flex items-center justify-center transition-shadow group-hover:shadow-lg group-hover:shadow-primary/20"
+              whileHover={{ scale: 1.05 }}
+              className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm"
             >
-              <Zap className="w-4 h-4 text-background" />
+              <Zap className="w-4 h-4 text-primary-foreground" />
             </motion.div>
-            <span className="font-semibold text-base">CoreLens</span>
+            <span className="font-bold text-base">CoreLens</span>
           </Link>
 
-          {/* Center Nav */}
           <nav className="hidden md:flex items-center gap-1">
             {[
-              { to: "/dashboard", label: "Dashboard" },
-              { to: "/domains", label: "Practice" },
-              { to: "/profile", label: "Profile" },
+              { to: "/domains", label: "Domains" },
+              { to: "/practice", label: "Practice" },
+              { to: "/challenge", label: "Challenge" },
             ].map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="relative px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-              >
-                <span className="relative z-10">{link.label}</span>
-                <motion.span
-                  className="absolute inset-0 bg-muted/50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                  layoutId="nav-hover"
-                />
+              <Link key={link.to} to={link.to} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50">
+                {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsDark(!isDark)}
-              className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all"
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </motion.button>
+          <div className="flex items-center gap-2">
             <Link to="/auth">
-              <Button variant="ghost" size="sm" className="text-sm">
-                Sign In
-              </Button>
+              <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">Sign In</Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="sm" className="text-sm h-8 px-4">Get Started</Button>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-20 relative z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto text-center"
-        >
-          {/* Badge */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.1 }}
-            whileHover={{ scale: 1.02, y: -2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/40 border border-border/50 text-muted-foreground text-sm mb-10 cursor-default group hover:border-primary/30 hover:bg-primary/5 transition-all"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-primary group-hover:animate-pulse" />
-            Master technical communication
-          </motion.div>
+      {/* Hero */}
+      <main className="flex-1">
+        <section className="relative overflow-hidden">
+          {/* Subtle gradient bg */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
+          </div>
 
-          {/* Headline */}
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-8"
-          >
-            Explain your way to a{" "}
-            <motion.span 
-              className="text-muted-foreground/60 relative inline-block"
-              whileHover={{ scale: 1.02 }}
-            >
-              <span className="relative z-10">top-tier</span>
-              <motion.span 
-                className="absolute -inset-2 bg-primary/10 rounded-lg -z-0"
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileHover={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.2 }}
-              />
-            </motion.span>{" "}
-            offer.
-          </motion.h1>
+          <div className="max-w-4xl mx-auto px-6 pt-24 pb-20 relative z-10 text-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs font-medium mb-8">
+                <Sparkles className="w-3 h-3" />
+                AI-Powered Interview Intelligence
+              </div>
 
-          {/* Subtitle */}
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.3 }}
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
-          >
-            CoreLens evaluates your conceptual understanding and reasoning clarity, training you to speak like a senior engineer during technical interviews.
-          </motion.p>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
+                Master the art of
+                <br />
+                <span className="text-gradient-primary">technical explanation</span>
+              </h1>
 
-          {/* CTA Buttons */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.4 }}
-            className="flex items-center justify-center gap-4"
-          >
-            <Link to="/domains">
-              <motion.div
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button 
-                  size="lg" 
-                  className="h-12 px-8 text-base font-medium bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl hover:shadow-foreground/10 transition-all"
+              <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
+                CoreLens evaluates your reasoning clarity and problem-solving depth — training you to communicate like a senior engineer.
+              </p>
+
+              <div className="flex items-center justify-center gap-3">
+                <Link to="/auth">
+                  <Button size="lg" className="h-11 px-7 text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all">
+                    Start Free <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </Link>
+                <Link to="/domains">
+                  <Button variant="outline" size="lg" className="h-11 px-7 text-sm font-medium">
+                    Explore Domains
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Domains preview */}
+        <section className="max-w-5xl mx-auto px-6 pb-20">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="text-center mb-10">
+              <h2 className="text-2xl font-bold mb-2">4 Engineering Domains</h2>
+              <p className="text-sm text-muted-foreground">Real engineering curriculum depth — not surface-level categories</p>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {domains.map((d, i) => (
+                <motion.div
+                  key={d.name}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
                 >
-                  Get Started Free <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </motion.div>
-            </Link>
+                  <Link to="/domains" className="card-hover block p-5">
+                    <span className="text-2xl mb-3 block">{d.icon}</span>
+                    <h3 className="font-semibold text-sm mb-1">{d.name}</h3>
+                    <p className="text-[11px] text-muted-foreground">{d.topics}</p>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Features */}
+        <section className="border-t border-border/50 bg-muted/30">
+          <div className="max-w-5xl mx-auto px-6 py-20">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <h2 className="text-2xl font-bold mb-2">Built for serious engineers</h2>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">Every feature designed to bridge the gap between knowing and explaining</p>
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {features.map((f, i) => (
+                <motion.div
+                  key={f.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.06 }}
+                  className="surface-elevated p-6"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center mb-3">
+                    <f.icon className="w-4 h-4 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1">{f.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{f.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="max-w-5xl mx-auto px-6 py-20 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <h2 className="text-3xl font-bold mb-3">Ready to level up?</h2>
+            <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
+              Join engineers who practice explaining, not just solving.
+            </p>
             <Link to="/auth">
-              <motion.div
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="h-12 px-8 text-base font-medium border-border/50 hover:bg-muted/30 hover:border-primary/30 transition-all"
-                >
-                  Sign In
-                </Button>
-              </motion.div>
+              <Button size="lg" className="h-12 px-8 text-sm font-semibold shadow-lg shadow-primary/20">
+                Get Started Free <ArrowRight className="w-4 h-4 ml-1.5" />
+              </Button>
             </Link>
           </motion.div>
-
-          {/* Trust indicators */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-16 flex items-center justify-center gap-8 text-xs text-muted-foreground"
-          >
-            {["AI-Powered Feedback", "Senior Engineer Rubric", "Real-time Analysis"].map((item, i) => (
-              <motion.div 
-                key={item}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 + i * 0.1 }}
-                className="flex items-center gap-2"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                {item}
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
+        </section>
       </main>
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-border/30 relative z-10">
-        <div className="max-w-7xl mx-auto text-center text-xs text-muted-foreground">
-          © 2026 CoreLens. AI-Powered Engineering Intelligence Platform.
+      <footer className="py-8 px-6 border-t border-border/50">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
+              <Zap className="w-3 h-3 text-primary-foreground" />
+            </div>
+            <span className="text-xs text-muted-foreground">© 2026 CoreLens</span>
+          </div>
+          <span className="text-[11px] text-muted-foreground">AI-Powered Engineering Intelligence</span>
         </div>
       </footer>
     </div>
