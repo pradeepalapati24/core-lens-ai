@@ -1,52 +1,19 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Code2, FileText, ArrowRight, Cpu, Monitor, Loader2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useDomains, useTopics, useSubtopics, DbDomain } from "@/hooks/useDomains";
+import { ArrowRight, Cpu, Monitor, Loader2, FileText } from "lucide-react";
+import { useDomains, DbDomain } from "@/hooks/useDomains";
 
 export default function DomainsPage() {
   const navigate = useNavigate();
-  const [selectedDomain, setSelectedDomain] = useState<DbDomain | null>(null);
-  const [showCodeModal, setShowCodeModal] = useState(false);
-
   const { data: domains = [], isLoading } = useDomains();
 
-  // Fetch topic/subtopic counts for each domain
   const itDomains = domains.filter((d) => d.type === "software");
   const coreDomains = domains.filter((d) => d.type === "core");
 
   const handleDomainClick = (domain: DbDomain) => {
-    if (domain.type === "software") {
-      setSelectedDomain(domain);
-      setShowCodeModal(true);
-    } else {
-      navigate("/practice", {
-        state: {
-          selectedDomainId: domain.id,
-          includeCode: false,
-        },
-      });
-    }
-  };
-
-  const handleModeSelection = (includeCode: boolean) => {
-    setShowCodeModal(false);
-    if (selectedDomain) {
-      navigate("/practice", {
-        state: {
-          selectedDomainId: selectedDomain.id,
-          includeCode,
-        },
-      });
-    }
+    navigate("/practice", {
+      state: { selectedDomainId: domain.id },
+    });
   };
 
   const DomainCard = ({ domain }: { domain: DbDomain }) => (
@@ -62,9 +29,7 @@ export default function DomainsPage() {
         <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
       <h3 className="font-medium text-sm mb-1">{domain.name}</h3>
-      <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-        {domain.description}
-      </p>
+      <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{domain.description}</p>
     </motion.button>
   );
 
@@ -80,9 +45,7 @@ export default function DomainsPage() {
     <div className="p-8 max-w-6xl mx-auto">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <h1 className="text-[28px] font-semibold mb-2">Domains</h1>
-        <p className="text-sm text-muted-foreground">
-          Choose a domain to start practicing and improve your skills.
-        </p>
+        <p className="text-sm text-muted-foreground">Choose a domain to start practicing and improve your skills.</p>
       </motion.div>
 
       {/* IT Domains */}
@@ -128,38 +91,6 @@ export default function DomainsPage() {
           Core domains focus on theoretical understanding and explanation-based evaluation.
         </p>
       </motion.section>
-
-      {/* Code Mode Modal */}
-      <Dialog open={showCodeModal} onOpenChange={setShowCodeModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <span className="text-xl">{selectedDomain?.icon}</span>
-              {selectedDomain?.name}
-            </DialogTitle>
-            <DialogDescription>How would you like to practice this domain?</DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => handleModeSelection(true)} className="surface-elevated p-5 text-center group hover:border-primary/30 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
-                <Code2 className="w-5 h-5 text-primary" />
-              </div>
-              <h4 className="font-medium text-sm mb-1">With Code</h4>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">Write code and explain your approach</p>
-            </motion.button>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => handleModeSelection(false)} className="surface-elevated p-5 text-center group hover:border-success/30 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-success/20 transition-colors">
-                <FileText className="w-5 h-5 text-success" />
-              </div>
-              <h4 className="font-medium text-sm mb-1">Theory Only</h4>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">Focus on concepts and explanation</p>
-            </motion.button>
-          </div>
-          <Button variant="ghost" size="sm" className="mt-2 text-xs text-muted-foreground" onClick={() => setShowCodeModal(false)}>
-            Cancel
-          </Button>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

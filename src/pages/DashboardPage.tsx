@@ -47,26 +47,27 @@ export default function DashboardPage() {
     fetchUser();
   }, []);
 
-  // Calculate metrics
+  // Calculate metrics (display on /100 scale)
   const totalSolved = domainPerformance.reduce((sum, p) => sum + p.total_questions, 0);
-  const avgScore = domainPerformance.length > 0
+  const avgScoreRaw = domainPerformance.length > 0
     ? domainPerformance.reduce((sum, p) => sum + (p.avg_score * p.total_questions), 0) / Math.max(totalSolved, 1)
     : 0;
+  const avgScore = avgScoreRaw * 10; // Convert to /100
   
-  // Interview readiness (avg score)
-  const interviewReadiness = avgScore.toFixed(1);
+  // Interview readiness (avg score out of 100)
+  const interviewReadiness = Math.round(avgScore);
   
-  // Hiring probability (simplified calculation based on avg score)
-  const hiringProbability = Math.min(Math.round(avgScore * 10), 100);
+  // Hiring probability
+  const hiringProbability = Math.min(Math.round(avgScore), 100);
   
-  // Streak (placeholder - would need to track daily activity)
+  // Streak (placeholder)
   const currentStreak = solvedQuestions.length > 0 ? 1 : 0;
 
-  // Radar chart data
+  // Radar chart data (/100)
   const radarData = domainPerformance.map((d) => ({
     subject: d.domain_name.split(" ").slice(0, 2).join(" "),
-    score: d.avg_score,
-    fullMark: 10,
+    score: d.avg_score * 10,
+    fullMark: 100,
   }));
 
   // Get weak domains for heatmap
@@ -106,7 +107,7 @@ export default function DashboardPage() {
       {/* Metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { icon: Target, label: "Interview Readiness", value: interviewReadiness, sub: "out of 10", color: "text-primary" },
+          { icon: Target, label: "Interview Readiness", value: interviewReadiness.toString(), sub: "out of 100", color: "text-primary" },
           { icon: Percent, label: "Hiring Probability", value: `${hiringProbability}%`, sub: "based on rubric", color: "text-success" },
           { icon: Code2, label: "Questions Solved", value: totalSolved.toString(), sub: "total", color: "text-foreground" },
           { icon: Flame, label: "Current Streak", value: currentStreak.toString(), sub: "consecutive days", color: "text-warning" },
@@ -158,11 +159,11 @@ export default function DashboardPage() {
                       className="h-full rounded transition-all duration-500"
                       style={{
                         width: `${d.avg_score * 10}%`,
-                        backgroundColor: d.avg_score < 6 ? "hsl(var(--destructive))" : d.avg_score < 7.5 ? "hsl(var(--warning))" : "hsl(var(--success))",
+                        backgroundColor: d.avg_score * 10 < 60 ? "hsl(var(--destructive))" : d.avg_score * 10 < 75 ? "hsl(var(--warning))" : "hsl(var(--success))",
                       }}
                     />
                   </div>
-                  <span className="font-mono text-xs w-8 text-right text-muted-foreground">{d.avg_score.toFixed(1)}</span>
+                  <span className="font-mono text-xs w-8 text-right text-muted-foreground">{Math.round(d.avg_score * 10)}</span>
                 </div>
               ))}
             </div>
@@ -196,9 +197,9 @@ export default function DashboardPage() {
                       {new Date(e.solved_at).toLocaleDateString()}
                     </span>
                     <span className={`font-mono text-xs font-semibold ${
-                      e.score >= 7 ? "text-success" : e.score >= 5 ? "text-warning" : "text-destructive"
+                      e.score * 10 >= 70 ? "text-success" : e.score * 10 >= 50 ? "text-warning" : "text-destructive"
                     }`}>
-                      {Number(e.score).toFixed(1)}
+                      {Math.round(Number(e.score) * 10)}
                     </span>
                   </div>
                 </div>

@@ -11,12 +11,12 @@ import { useDomainPerformance, useTopicPerformance, getStrongWeakDomains, getStr
 import { useDomains } from "@/hooks/useDomains";
 import { Progress } from "@/components/ui/progress";
 
-// Level thresholds
+// Level thresholds (on /100 scale)
 const LEVELS = [
-  { name: "Beginner", minScore: 0, maxScore: 4, color: "text-muted-foreground", bg: "bg-muted" },
-  { name: "Intermediate", minScore: 4, maxScore: 7, color: "text-warning", bg: "bg-warning" },
-  { name: "Advanced", minScore: 7, maxScore: 9, color: "text-primary", bg: "bg-primary" },
-  { name: "Expert", minScore: 9, maxScore: 10, color: "text-success", bg: "bg-success" },
+  { name: "Beginner", minScore: 0, maxScore: 40, color: "text-muted-foreground", bg: "bg-muted" },
+  { name: "Intermediate", minScore: 40, maxScore: 70, color: "text-warning", bg: "bg-warning" },
+  { name: "Advanced", minScore: 70, maxScore: 90, color: "text-primary", bg: "bg-primary" },
+  { name: "Expert", minScore: 90, maxScore: 100, color: "text-success", bg: "bg-success" },
 ];
 
 function getLevel(score: number) {
@@ -36,7 +36,7 @@ function getNextLevel(score: number) {
 function getPointsToNext(score: number) {
   const next = getNextLevel(score);
   const pointsNeeded = Math.max(0, next.maxScore - score);
-  return { pointsNeeded: pointsNeeded.toFixed(1), nextLevel: next.name };
+  return { pointsNeeded: Math.round(pointsNeeded).toString(), nextLevel: next.name };
 }
 
 export default function ProfilePage() {
@@ -75,9 +75,10 @@ export default function ProfilePage() {
   const { strong: strongTopics, weak: weakTopics } = getStrongWeakTopics(topicPerformance);
 
   const totalSolved = domainPerformance.reduce((sum, p) => sum + p.total_questions, 0);
-  const avgScore = domainPerformance.length > 0
+  const avgScoreRaw = domainPerformance.length > 0
     ? domainPerformance.reduce((sum, p) => sum + (p.avg_score * p.total_questions), 0) / Math.max(totalSolved, 1)
     : 0;
+  const avgScore = avgScoreRaw * 10; // Convert to /100
 
   const currentLevel = getLevel(avgScore);
   const { pointsNeeded, nextLevel } = getPointsToNext(avgScore);
@@ -91,16 +92,16 @@ export default function ProfilePage() {
     ? Math.round((strongDomains.length / domainPerformance.length) * 100)
     : 0;
 
-  // Improvement rate: % of topics above 5
-  const improvingTopics = topicPerformance.filter(t => t.avg_score >= 5).length;
+  // Improvement rate: % of topics above 50/100
+  const improvingTopics = topicPerformance.filter(t => t.avg_score * 10 >= 50).length;
   const improvementRate = topicPerformance.length > 0
     ? Math.round((improvingTopics / topicPerformance.length) * 100)
     : 0;
 
   const radarData = domainPerformance.map((d) => ({
     subject: d.domain_name.split(" ").slice(0, 2).join(" "),
-    score: d.avg_score,
-    fullMark: 10,
+    score: d.avg_score * 10,
+    fullMark: 100,
   }));
 
   const topicBarData = [...topicPerformance]
@@ -108,7 +109,7 @@ export default function ProfilePage() {
     .slice(0, 10)
     .map((t) => ({
       name: t.topic_name,
-      score: t.avg_score,
+      score: t.avg_score * 10,
       questions: t.total_questions,
     }));
 
@@ -159,7 +160,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className={`text-sm font-semibold ${currentLevel.color}`}>{currentLevel.name}</span>
-              <span className="text-xs text-muted-foreground">· Score: {avgScore.toFixed(1)}/10</span>
+              <span className="text-xs text-muted-foreground">· Score: {Math.round(avgScore)}/100</span>
             </div>
             <span className="text-xs text-muted-foreground">
               {Number(pointsNeeded) > 0 ? `${pointsNeeded} pts to ${nextLevel}` : "Max level reached!"}
@@ -179,7 +180,7 @@ export default function ProfilePage() {
       {/* Key Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
-          { icon: Target, label: "Overall Score", value: avgScore.toFixed(1), sub: "out of 10", color: "text-primary" },
+          { icon: Target, label: "Overall Score", value: Math.round(avgScore).toString(), sub: "out of 100", color: "text-primary" },
           { icon: Code2, label: "Questions Solved", value: totalSolved.toString(), sub: "total", color: "text-foreground" },
           { icon: TrendingUp, label: "Growth Rate", value: `${growthRate}%`, sub: "strong domains", color: "text-success" },
           { icon: BarChart3, label: "Improvement", value: `${improvementRate}%`, sub: "topics above 5", color: "text-warning" },
@@ -201,11 +202,12 @@ export default function ProfilePage() {
           <h3 className="text-sm font-medium mb-4">Domain Progress</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {domainPerformance.map((d) => {
-              const level = getLevel(d.avg_score);
-              const { pointsNeeded: ptsNeeded, nextLevel: nxtLvl } = getPointsToNext(d.avg_score);
-              const nxtObj = getNextLevel(d.avg_score);
+              const domainScore100 = d.avg_score * 10;
+              const level = getLevel(domainScore100);
+              const { pointsNeeded: ptsNeeded, nextLevel: nxtLvl } = getPointsToNext(domainScore100);
+              const nxtObj = getNextLevel(domainScore100);
               const prog = nxtObj.maxScore > nxtObj.minScore
-                ? ((d.avg_score - nxtObj.minScore) / (nxtObj.maxScore - nxtObj.minScore)) * 100
+                ? ((domainScore100 - nxtObj.minScore) / (nxtObj.maxScore - nxtObj.minScore)) * 100
                 : 100;
 
               return (
@@ -218,7 +220,7 @@ export default function ProfilePage() {
                         <span className={`text-[10px] ml-2 font-semibold ${level.color}`}>{level.name}</span>
                       </div>
                     </div>
-                    <span className="font-mono text-sm font-bold">{d.avg_score.toFixed(1)}</span>
+                    <span className="font-mono text-sm font-bold">{Math.round(domainScore100)}</span>
                   </div>
                   <Progress value={prog} className="h-1.5 mb-1" />
                   <div className="flex justify-between">
@@ -251,7 +253,7 @@ export default function ProfilePage() {
                     <span className="text-lg">{d.domain_icon}</span>
                     <span className="text-sm font-medium">{d.domain_name}</span>
                   </div>
-                  <span className="text-sm font-mono text-success">{d.avg_score.toFixed(1)}</span>
+                  <span className="text-sm font-mono text-success">{Math.round(d.avg_score * 10)}</span>
                 </div>
               ))}
               {strongTopics.slice(0, 3).map((t: any) => (
@@ -260,7 +262,7 @@ export default function ProfilePage() {
                     <span className="text-sm font-medium">{t.topic_name}</span>
                     <span className="text-xs text-muted-foreground ml-2">{t.domain_name}</span>
                   </div>
-                  <span className="text-sm font-mono text-success">{t.avg_score.toFixed(1)}</span>
+                  <span className="text-sm font-mono text-success">{Math.round(t.avg_score * 10)}</span>
                 </div>
               ))}
             </div>
@@ -283,11 +285,11 @@ export default function ProfilePage() {
                     <div>
                       <span className="text-sm font-medium">{d.domain_name}</span>
                       <span className="text-[10px] text-muted-foreground ml-2">
-                        {getPointsToNext(d.avg_score).pointsNeeded} pts to {getPointsToNext(d.avg_score).nextLevel}
+                        {getPointsToNext(d.avg_score * 10).pointsNeeded} pts to {getPointsToNext(d.avg_score * 10).nextLevel}
                       </span>
                     </div>
                   </div>
-                  <span className="text-sm font-mono text-destructive">{d.avg_score.toFixed(1)}</span>
+                  <span className="text-sm font-mono text-destructive">{Math.round(d.avg_score * 10)}</span>
                 </div>
               ))}
               {weakTopics.slice(0, 3).map((t: any) => (
@@ -296,7 +298,7 @@ export default function ProfilePage() {
                     <span className="text-sm font-medium">{t.topic_name}</span>
                     <span className="text-xs text-muted-foreground ml-2">{t.domain_name}</span>
                   </div>
-                  <span className="text-sm font-mono text-warning">{t.avg_score.toFixed(1)}</span>
+                  <span className="text-sm font-mono text-warning">{Math.round(t.avg_score * 10)}</span>
                 </div>
               ))}
             </div>
@@ -329,7 +331,7 @@ export default function ProfilePage() {
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={topicBarData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" domain={[0, 10]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
+                <XAxis type="number" domain={[0, 100]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
                 <YAxis dataKey="name" type="category" width={100} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
                 <Bar dataKey="score" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
@@ -363,7 +365,7 @@ export default function ProfilePage() {
                   <span className="text-sm font-medium">{d.domain_name}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Score: {d.avg_score.toFixed(1)} · {getPointsToNext(d.avg_score).pointsNeeded} pts to {getPointsToNext(d.avg_score).nextLevel}
+                  Score: {Math.round(d.avg_score * 10)} · {getPointsToNext(d.avg_score * 10).pointsNeeded} pts to {getPointsToNext(d.avg_score * 10).nextLevel}
                 </p>
               </Link>
             ))}

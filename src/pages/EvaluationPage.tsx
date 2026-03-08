@@ -184,19 +184,22 @@ export default function EvaluationPage() {
     );
   }
 
+  // Convert to /100 scale for display
+  const displayScore = finalScore * 10;
+  
   const radarData = Object.entries(rubric).map(([key, val]) => ({
     subject: rubricLabels[key] || key,
-    score: val as number,
-    fullMark: 10,
+    score: (val as number) * 10,
+    fullMark: 100,
   }));
 
   const barData = Object.entries(rubric).map(([key, val]) => ({
     name: rubricLabels[key] || key,
-    score: val as number,
-    lost: 10 - (val as number),
+    score: (val as number) * 10,
+    lost: 100 - ((val as number) * 10),
   }));
 
-  const scoreColor = finalScore >= 7 ? "text-success" : finalScore >= 5 ? "text-warning" : "text-destructive";
+  const scoreColor = displayScore >= 70 ? "text-success" : displayScore >= 50 ? "text-warning" : "text-destructive";
   const hiringProb = aiEvaluation?.hiringProbability ?? Math.round(finalScore * 10);
 
   const questionTitle = state?.question?.topic || "Evaluation";
@@ -221,8 +224,8 @@ export default function EvaluationPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="surface-elevated p-6 text-center">
           <div className="text-xs text-muted-foreground mb-2">Final Score</div>
-          <div className={`text-5xl font-bold ${scoreColor}`}>{finalScore.toFixed(1)}</div>
-          <div className="text-xs text-muted-foreground mt-1">out of 10.0</div>
+          <div className={`text-5xl font-bold ${scoreColor}`}>{Math.round(displayScore)}</div>
+          <div className="text-xs text-muted-foreground mt-1">out of 100</div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="surface-elevated p-6 text-center">
@@ -237,8 +240,8 @@ export default function EvaluationPage() {
           <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground mb-2">
             <Target className="w-3.5 h-3.5" /> Interview Readiness
           </div>
-          <div className={`text-5xl font-bold ${scoreColor}`}>{(aiEvaluation?.interviewReadinessScore ?? finalScore).toFixed(1)}</div>
-          <div className="text-xs text-muted-foreground mt-1">readiness score</div>
+          <div className={`text-5xl font-bold ${scoreColor}`}>{Math.round((aiEvaluation?.interviewReadinessScore ?? finalScore) * 10)}</div>
+          <div className="text-xs text-muted-foreground mt-1">out of 100</div>
         </motion.div>
       </div>
 
@@ -260,7 +263,7 @@ export default function EvaluationPage() {
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={barData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis type="number" domain={[0, 10]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+              <XAxis type="number" domain={[0, 100]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
               <YAxis type="category" dataKey="name" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} width={90} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
               <Bar dataKey="score" stackId="a" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />

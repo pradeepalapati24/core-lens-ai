@@ -256,41 +256,40 @@ export default function PracticePage() {
           )}
         </AnimatePresence>
 
-        {/* Code Mode Toggle for Software Domains */}
-        {selectedDomain?.type === "software" && selectedSubtopic && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            className="surface-elevated p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-medium">Practice Mode</h2>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {includeCode ? "Code + Theory" : "Theory Only"}
-                </p>
-              </div>
-              <div className="flex gap-2">
+        {/* Practice Mode - shown after difficulty for software domains */}
+        <AnimatePresence>
+          {selectedDifficulty && selectedDomain?.type === "software" && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: "auto" }} 
+              exit={{ opacity: 0, height: 0 }}
+              className="surface-elevated p-6"
+            >
+              <h2 className="text-sm font-medium mb-2">Practice Mode</h2>
+              <p className="text-xs text-muted-foreground mb-4">How would you like to answer this question?</p>
+              <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => setIncludeCode(true)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    includeCode ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  className={`p-4 rounded-lg border text-center transition-all hover:scale-[1.02] ${
+                    includeCode ? "border-primary bg-primary/5" : "border-border hover:border-primary/30 bg-card"
                   }`}
                 >
-                  With Code
+                  <div className="font-medium text-sm mb-1">Code + Explanation</div>
+                  <p className="text-[11px] text-muted-foreground">Write code and explain your approach</p>
                 </button>
                 <button
                   onClick={() => setIncludeCode(false)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    !includeCode ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  className={`p-4 rounded-lg border text-center transition-all hover:scale-[1.02] ${
+                    !includeCode ? "border-primary bg-primary/5" : "border-border hover:border-primary/30 bg-card"
                   }`}
                 >
-                  Theory Only
+                  <div className="font-medium text-sm mb-1">Theory Only</div>
+                  <p className="text-[11px] text-muted-foreground">Focus on concepts and explanation</p>
                 </button>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Start Button */}
         <motion.div 
