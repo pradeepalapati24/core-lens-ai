@@ -180,7 +180,7 @@ export default function ProfilePage() {
       {/* Key Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
-          { icon: Target, label: "Overall Score", value: avgScore.toFixed(1), sub: "out of 10", color: "text-primary" },
+          { icon: Target, label: "Overall Score", value: Math.round(avgScore).toString(), sub: "out of 100", color: "text-primary" },
           { icon: Code2, label: "Questions Solved", value: totalSolved.toString(), sub: "total", color: "text-foreground" },
           { icon: TrendingUp, label: "Growth Rate", value: `${growthRate}%`, sub: "strong domains", color: "text-success" },
           { icon: BarChart3, label: "Improvement", value: `${improvementRate}%`, sub: "topics above 5", color: "text-warning" },
