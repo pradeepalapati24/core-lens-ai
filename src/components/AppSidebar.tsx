@@ -17,10 +17,10 @@ import {
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Practice", url: "/practice", icon: BookOpen },
-  { title: "Domains", url: "/practice", icon: Layers },
+  { title: "Domains", url: "/domains", icon: Layers },
   { title: "Evaluation History", url: "/evaluation", icon: History },
   { title: "Profile", url: "/profile", icon: User },
-  { title: "GitHub Integration", url: "/profile", icon: Github },
+  { title: "GitHub Integration", url: "/github", icon: Github },
 ];
 
 export function AppSidebar() {
