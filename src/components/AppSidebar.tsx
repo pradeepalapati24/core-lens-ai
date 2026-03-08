@@ -91,12 +91,13 @@ export function AppSidebar() {
                         end
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 ${
                           active
-                            ? "!bg-sidebar-primary !text-white font-medium shadow-sm"
-                            : "!text-white/90 hover:!text-white hover:!bg-white/10"
+                            ? "bg-sidebar-primary font-medium shadow-sm"
+                            : "hover:bg-white/10"
                         }`}
                         activeClassName=""
+                        style={{ color: active ? '#ffffff' : 'rgba(255,255,255,0.9)' }}
                       >
-                        <item.icon className="h-[15px] w-[15px] shrink-0" />
+                        <item.icon className="h-[15px] w-[15px] shrink-0" style={{ color: 'inherit' }} />
                         {!collapsed && <span>{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
