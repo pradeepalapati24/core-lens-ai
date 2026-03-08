@@ -1,4 +1,4 @@
-import { Cpu, LayoutDashboard, User, BookOpen, History, Github, Settings, Layers } from "lucide-react";
+import { Cpu, LayoutDashboard, User, BookOpen, Settings, Layers, Swords, FileText } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -18,9 +18,9 @@ const mainItems = [
 { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
 { title: "Practice", url: "/practice", icon: BookOpen },
 { title: "Domains", url: "/domains", icon: Layers },
-{ title: "Evaluation History", url: "/evaluation", icon: History },
-{ title: "Profile", url: "/profile", icon: User },
-{ title: "GitHub Integration", url: "/github", icon: Github }];
+{ title: "Challenge", url: "/challenge", icon: Swords },
+{ title: "Skill Report", url: "/skill-report", icon: FileText },
+{ title: "Profile", url: "/profile", icon: User }];
 
 
 export function AppSidebar() {

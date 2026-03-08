@@ -15,6 +15,9 @@ import EvaluationPage from "./pages/EvaluationPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import InterviewSimPage from "./pages/InterviewSimPage";
+import ChallengePage from "./pages/ChallengePage";
+import SkillReportPage from "./pages/SkillReportPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,18 +28,9 @@ function AppLayout() {
   const isAuthPage = location.pathname === "/auth";
   const isResetPage = location.pathname === "/reset-password";
 
-  // Landing page and auth pages have their own full-width layout without sidebar
-  if (isLandingPage) {
-    return <LandingPage />;
-  }
-
-  if (isAuthPage) {
-    return <AuthPage />;
-  }
-
-  if (isResetPage) {
-    return <ResetPasswordPage />;
-  }
+  if (isLandingPage) return <LandingPage />;
+  if (isAuthPage) return <AuthPage />;
+  if (isResetPage) return <ResetPasswordPage />;
 
   return (
     <SidebarProvider>
@@ -50,7 +44,10 @@ function AppLayout() {
               <Route path="/domains" element={<DomainsPage />} />
               <Route path="/practice" element={<PracticePage />} />
               <Route path="/workspace" element={<WorkspacePage />} />
+              <Route path="/interview" element={<InterviewSimPage />} />
               <Route path="/evaluation" element={<EvaluationPage />} />
+              <Route path="/challenge" element={<ChallengePage />} />
+              <Route path="/skill-report" element={<SkillReportPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
