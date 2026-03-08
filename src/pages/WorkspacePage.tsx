@@ -257,6 +257,7 @@ export default function WorkspacePage() {
     }
   };
 
+  const isLowReasoning = explanation.trim().length > 0 && explanation.trim().length < 80;
   const canProceedToStep2 = includeCode ? code.trim().length > 20 : true;
   const canSubmit = question && explanation.trim().length > 10;
 
