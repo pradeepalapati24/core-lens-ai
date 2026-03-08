@@ -92,11 +92,11 @@ export function AppSidebar() {
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 ${
                           active
                             ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-sm"
-                            : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                            : "text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent"
                         }`}
                         activeClassName=""
                       >
-                        <item.icon className={`h-[15px] w-[15px] shrink-0 ${active ? "" : "opacity-60"}`} />
+                        <item.icon className="h-[15px] w-[15px] shrink-0" />
                         {!collapsed && <span>{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
