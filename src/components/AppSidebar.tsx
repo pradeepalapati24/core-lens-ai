@@ -61,16 +61,16 @@ export function AppSidebar() {
     : "U";
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="p-4 pb-3">
         <NavLink to="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0 shadow-sm">
-            <Cpu className="w-4 h-4 text-primary-foreground" />
+          <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0 shadow-sm">
+            <Cpu className="w-4 h-4 text-sidebar-primary-foreground" />
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="text-sm font-bold tracking-tight text-sidebar-foreground">CoreLens</span>
-              <span className="text-[10px] text-sidebar-foreground/50 -mt-0.5">AI Interview Coach</span>
+              <span className="text-sm font-bold tracking-tight text-white">CoreLens</span>
+              <span className="text-[10px] text-white/40 -mt-0.5">AI Interview Coach</span>
             </div>
           )}
         </NavLink>
@@ -78,7 +78,7 @@ export function AppSidebar() {
 
       <SidebarContent className="px-2">
         <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-sidebar-foreground/30 px-3 mb-1">Navigation</SidebarGroupLabel>}
+          {!collapsed && <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-white/25 px-3 mb-1">Navigation</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
               {navItems.map((item) => {
@@ -91,8 +91,8 @@ export function AppSidebar() {
                         end
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 ${
                           active
-                            ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-sm"
-                            : "text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                            ? "!bg-sidebar-primary !text-white font-medium shadow-sm"
+                            : "!text-white/80 hover:!text-white hover:!bg-white/10"
                         }`}
                         activeClassName=""
                       >
