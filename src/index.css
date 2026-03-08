@@ -149,3 +149,15 @@
     @apply bg-background/80 backdrop-blur-xl border border-border/50;
   }
 }
+
+/* Sidebar nav visibility fix - outside @layer for max specificity */
+[data-sidebar="sidebar"] [data-sidebar="menu-button"] {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+[data-sidebar="sidebar"] [data-sidebar="menu-button"]:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+[data-sidebar="sidebar"] [data-sidebar="menu-button"] svg {
+  opacity: 1 !important;
+  color: inherit !important;
+}
