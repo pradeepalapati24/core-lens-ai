@@ -75,9 +75,10 @@ export default function ProfilePage() {
   const { strong: strongTopics, weak: weakTopics } = getStrongWeakTopics(topicPerformance);
 
   const totalSolved = domainPerformance.reduce((sum, p) => sum + p.total_questions, 0);
-  const avgScore = domainPerformance.length > 0
+  const avgScoreRaw = domainPerformance.length > 0
     ? domainPerformance.reduce((sum, p) => sum + (p.avg_score * p.total_questions), 0) / Math.max(totalSolved, 1)
     : 0;
+  const avgScore = avgScoreRaw * 10; // Convert to /100
 
   const currentLevel = getLevel(avgScore);
   const { pointsNeeded, nextLevel } = getPointsToNext(avgScore);
@@ -91,16 +92,16 @@ export default function ProfilePage() {
     ? Math.round((strongDomains.length / domainPerformance.length) * 100)
     : 0;
 
-  // Improvement rate: % of topics above 5
-  const improvingTopics = topicPerformance.filter(t => t.avg_score >= 5).length;
+  // Improvement rate: % of topics above 50/100
+  const improvingTopics = topicPerformance.filter(t => t.avg_score * 10 >= 50).length;
   const improvementRate = topicPerformance.length > 0
     ? Math.round((improvingTopics / topicPerformance.length) * 100)
     : 0;
 
   const radarData = domainPerformance.map((d) => ({
     subject: d.domain_name.split(" ").slice(0, 2).join(" "),
-    score: d.avg_score,
-    fullMark: 10,
+    score: d.avg_score * 10,
+    fullMark: 100,
   }));
 
   const topicBarData = [...topicPerformance]
@@ -108,7 +109,7 @@ export default function ProfilePage() {
     .slice(0, 10)
     .map((t) => ({
       name: t.topic_name,
-      score: t.avg_score,
+      score: t.avg_score * 10,
       questions: t.total_questions,
     }));
 
