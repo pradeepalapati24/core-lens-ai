@@ -31,16 +31,16 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="p-5 pb-6">
+      <SidebarHeader className="p-5 pb-6 bg-muted">
         <NavLink to="/" className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center shrink-0">
-            <Cpu className="w-3.5 h-3.5 text-primary-foreground" />
+          <div className="w-7 h-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
+            <Cpu className="w-3.5 h-3.5 text-white" />
           </div>
-          {!collapsed && <span className="text-base font-semibold tracking-tight text-muted-foreground bg-primary-foreground">CoreLens</span>}
+          {!collapsed && <span className="text-base font-semibold tracking-tight text-foreground">CoreLens</span>}
         </NavLink>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="bg-muted">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 px-2">
@@ -54,8 +54,8 @@ export function AppSidebar() {
                         end
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                         active ?
-                        "bg-[hsl(239_84%_67%/0.15)] text-foreground font-medium" :
-                        "text-muted-foreground hover:text-foreground hover:bg-muted/40"}`
+                        "bg-secondary text-white font-medium" :
+                        "text-foreground hover:text-white hover:bg-secondary/80"}`
                         }
                         activeClassName="">
                         
@@ -71,17 +71,17 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-2 px-4">
+      <SidebarFooter className="p-2 px-4 bg-muted">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <NavLink
                 to="/profile"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-foreground hover:text-white hover:bg-secondary/80 transition-colors"
                 activeClassName="">
                 
                 <Settings className="h-4 w-4 shrink-0" />
-                {!collapsed && <span className="bg-primary-foreground text-popover-foreground">Settings</span>}
+                {!collapsed && <span>Settings</span>}
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
