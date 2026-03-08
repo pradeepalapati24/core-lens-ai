@@ -12,11 +12,21 @@ const features = [
   { icon: Sparkles, title: "Skill Reports", description: "Export shareable proficiency summaries for resumes and LinkedIn." },
 ];
 
-const domains = [
-  { icon: "💻", name: "IT / Software", topics: "6 topics · 60+ subtopics" },
-  { icon: "⚡", name: "Core Electronics", topics: "6 topics · 40+ subtopics" },
-  { icon: "🌐", name: "IoT Systems", topics: "5 topics · 25+ subtopics" },
-  { icon: "🔬", name: "VLSI Design", topics: "5 topics · 25+ subtopics" },
+const domainGroups = [
+  {
+    category: "SOFTWARE ENGINEERING",
+    domains: [
+      { icon: "💻", name: "IT / Software Engineering", topics: "6 topics · 60+ subtopics" },
+    ],
+  },
+  {
+    category: "CORE ENGINEERING",
+    domains: [
+      { icon: "⚡", name: "Core Electronics", topics: "6 topics · 40+ subtopics" },
+      { icon: "🌐", name: "IoT Systems", topics: "5 topics · 25+ subtopics" },
+      { icon: "🔬", name: "VLSI Design", topics: "5 topics · 25+ subtopics" },
+    ],
+  },
 ];
 
 export default function LandingPage() {
@@ -71,17 +81,17 @@ export default function LandingPage() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs font-medium mb-8">
                 <Sparkles className="w-3 h-3" />
-                AI-Powered Interview Intelligence
+                AI Technical Interview Coach for Engineers
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-                Master the art of
+                Practice technical
                 <br />
-                <span className="text-gradient-primary">technical explanation</span>
+                <span className="text-gradient-primary">interviews with AI</span>
               </h1>
 
               <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
-                CoreLens evaluates your reasoning clarity and problem-solving depth — training you to communicate like a senior engineer.
+                Solve engineering problems, explain your reasoning, and get evaluated like a real technical interview.
               </p>
 
               <div className="flex items-center justify-center gap-3">
@@ -101,29 +111,54 @@ export default function LandingPage() {
         </section>
 
         {/* Domains preview */}
+        {/* Core Learning Loop */}
+        <section className="max-w-4xl mx-auto px-6 pb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+            <h2 className="text-2xl font-bold mb-2">How CoreLens Works</h2>
+            <p className="text-sm text-muted-foreground">A focused learning loop that mirrors real interview conditions</p>
+          </motion.div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { step: "1", label: "Practice", desc: "Pick a domain, topic & difficulty", icon: "🎯" },
+              { step: "2", label: "Explain", desc: "Write code and explain your reasoning", icon: "✍️" },
+              { step: "3", label: "Evaluation", desc: "AI grades on a senior engineer rubric", icon: "📊" },
+              { step: "4", label: "Progress", desc: "Track growth across all domains", icon: "📈" },
+            ].map((s, i) => (
+              <motion.div key={s.step} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+                className="surface-elevated p-5 text-center"
+              >
+                <span className="text-2xl mb-2 block">{s.icon}</span>
+                <div className="text-xs font-bold text-primary mb-1">Step {s.step}</div>
+                <h3 className="font-semibold text-sm mb-1">{s.label}</h3>
+                <p className="text-[11px] text-muted-foreground">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Domains preview */}
         <section className="max-w-5xl mx-auto px-6 pb-20">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div className="text-center mb-10">
               <h2 className="text-2xl font-bold mb-2">4 Engineering Domains</h2>
               <p className="text-sm text-muted-foreground">Real engineering curriculum depth — not surface-level categories</p>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {domains.map((d, i) => (
-                <motion.div
-                  key={d.name}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                >
-                  <Link to="/domains" className="card-hover block p-5">
-                    <span className="text-2xl mb-3 block">{d.icon}</span>
-                    <h3 className="font-semibold text-sm mb-1">{d.name}</h3>
-                    <p className="text-[11px] text-muted-foreground">{d.topics}</p>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+            {domainGroups.map((group, gi) => (
+              <div key={group.category} className={gi > 0 ? "mt-6" : ""}>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">{group.category}</div>
+                <div className={`grid gap-4 ${group.domains.length === 1 ? "grid-cols-1 max-w-xs" : "grid-cols-2 lg:grid-cols-3"}`}>
+                  {group.domains.map((d, i) => (
+                    <motion.div key={d.name} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: (gi * 3 + i) * 0.06 }}>
+                      <Link to="/domains" className="card-hover block p-5">
+                        <span className="text-2xl mb-3 block">{d.icon}</span>
+                        <h3 className="font-semibold text-sm mb-1">{d.name}</h3>
+                        <p className="text-[11px] text-muted-foreground">{d.topics}</p>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </motion.div>
         </section>
 
@@ -180,7 +215,7 @@ export default function LandingPage() {
             </div>
             <span className="text-xs text-muted-foreground">© 2026 CoreLens</span>
           </div>
-          <span className="text-[11px] text-muted-foreground">AI-Powered Engineering Intelligence</span>
+          <span className="text-[11px] text-muted-foreground">AI Technical Interview Coach for Engineers</span>
         </div>
       </footer>
     </div>
