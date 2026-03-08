@@ -353,7 +353,8 @@ export default function InterviewSimPage() {
                 <div className="relative">
                   <textarea
                     value={explanation}
-                    onChange={(e) => setExplanation(e.target.value)}
+                    onChange={handleExplanationChange}
+                    onPaste={handleExplanationPaste}
                     placeholder="Type or use voice to explain..."
                     className="w-full min-h-[200px] p-4 rounded-lg border border-border bg-card text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   />
@@ -363,6 +364,20 @@ export default function InterviewSimPage() {
                     </button>
                   </div>
                 </div>
+                {showPasteWarning && (
+                  <div className={`mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs ${
+                    pasteWarningLevel === "penalty" 
+                      ? "bg-destructive/10 border-destructive/20 text-destructive" 
+                      : "bg-warning/10 border-warning/20 text-warning"
+                  }`}>
+                    <Clipboard className="w-3.5 h-3.5 shrink-0" />
+                    <span>
+                      {pasteWarningLevel === "penalty" 
+                        ? `⛔ Multiple pastes detected (${pasteCount}x) — Negative points will be deducted`
+                        : "⚠ Paste detected — AI evaluation will check for originality"}
+                    </span>
+                  </div>
+                )}
 
                 <div className="mt-6 flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">{explanation.length} characters</p>
