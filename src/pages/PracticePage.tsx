@@ -15,7 +15,7 @@ import {
 type Difficulty = "beginner" | "intermediate" | "advanced";
 
 const difficultyConfig: { value: Difficulty; label: string; icon: any; color: string; bgColor: string }[] = [
-  { value: "beginner", label: "Beginner", icon: Zap, color: "text-accent", bgColor: "bg-accent/10" },
+  { value: "beginner", label: "Beginner", icon: Zap, color: "text-success", bgColor: "bg-success/10" },
   { value: "intermediate", label: "Intermediate", icon: Signal, color: "text-warning", bgColor: "bg-warning/10" },
   { value: "advanced", label: "Advanced", icon: Gauge, color: "text-destructive", bgColor: "bg-destructive/10" },
 ];
@@ -141,7 +141,7 @@ export default function PracticePage() {
                 <div className="text-xl mb-1">{d.icon}</div>
                 <div className="font-medium text-sm truncate">{d.name}</div>
                 <div className={`text-[10px] uppercase font-medium mt-1 ${
-                  d.type === "software" ? "text-primary" : "text-accent"
+                  d.type === "software" ? "text-primary" : "text-success"
                 }`}>
                   {d.type}
                 </div>
@@ -318,7 +318,7 @@ export default function PracticePage() {
                 <span className="font-medium text-foreground">{selectedSubtopic?.name}</span>
                 {" · "}
                 <span className={`font-medium ${
-                  selectedDifficulty === "beginner" ? "text-accent" :
+                  selectedDifficulty === "beginner" ? "text-success" :
                   selectedDifficulty === "intermediate" ? "text-warning" : "text-destructive"
                 }`}>
                   {selectedDifficulty?.charAt(0).toUpperCase()}{selectedDifficulty?.slice(1)}

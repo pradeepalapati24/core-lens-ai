@@ -107,7 +107,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { icon: Target, label: "Interview Readiness", value: interviewReadiness, sub: "out of 10", color: "text-primary" },
-          { icon: Percent, label: "Hiring Probability", value: `${hiringProbability}%`, sub: "based on rubric", color: "text-accent" },
+          { icon: Percent, label: "Hiring Probability", value: `${hiringProbability}%`, sub: "based on rubric", color: "text-success" },
           { icon: Code2, label: "Questions Solved", value: totalSolved.toString(), sub: "total", color: "text-foreground" },
           { icon: Flame, label: "Current Streak", value: currentStreak.toString(), sub: "consecutive days", color: "text-warning" },
         ].map((m, i) => (
@@ -158,7 +158,7 @@ export default function DashboardPage() {
                       className="h-full rounded transition-all duration-500"
                       style={{
                         width: `${d.avg_score * 10}%`,
-                        backgroundColor: d.avg_score < 6 ? "hsl(var(--destructive))" : d.avg_score < 7.5 ? "hsl(var(--warning))" : "hsl(var(--accent))",
+                        backgroundColor: d.avg_score < 6 ? "hsl(var(--destructive))" : d.avg_score < 7.5 ? "hsl(var(--warning))" : "hsl(var(--success))",
                       }}
                     />
                   </div>
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                       {new Date(e.solved_at).toLocaleDateString()}
                     </span>
                     <span className={`font-mono text-xs font-semibold ${
-                      e.score >= 7 ? "text-accent" : e.score >= 5 ? "text-warning" : "text-destructive"
+                      e.score >= 7 ? "text-success" : e.score >= 5 ? "text-warning" : "text-destructive"
                     }`}>
                       {Number(e.score).toFixed(1)}
                     </span>
@@ -218,9 +218,9 @@ export default function DashboardPage() {
                     <span className="text-lg">{d.icon}</span>
                     <span className="text-sm font-medium">{d.name}</span>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                    d.type === "software" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
-                  }`}>
+                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                     d.type === "software" ? "bg-primary/10 text-primary" : "bg-success/10 text-success"
+                   }`}>
                     {d.type}
                   </span>
                 </Link>

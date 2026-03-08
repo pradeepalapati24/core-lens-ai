@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
-import { mockEvaluation } from "@/lib/mockData";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle, AlertTriangle, Lightbulb, ArrowRight, BookOpen, Percent, Target, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,12 +23,13 @@ const rubricLabels: Record<string, string> = {
 
 export default function EvaluationPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const state = location.state as any;
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const aiEvaluation = state?.evaluation;
-  
+
   const evaluation = aiEvaluation ? {
     finalScore: aiEvaluation.finalScore || 0,
     rubric: aiEvaluation.scores || {},
@@ -40,10 +40,10 @@ export default function EvaluationPage() {
     expertExplanation: aiEvaluation.expertExplanation || aiEvaluation.overallFeedback || "",
     hiringProbability: aiEvaluation.hiringProbability || 0,
     interviewReadiness: aiEvaluation.interviewReadinessScore || 0,
-  } : mockEvaluation;
+  } : null;
 
-  const rubric = aiEvaluation?.scores || evaluation.rubric || {};
-  const finalScore = aiEvaluation?.finalScore ?? evaluation.finalScore ?? 0;
+  const rubric = aiEvaluation?.scores || {};
+  const finalScore = aiEvaluation?.finalScore ?? 0;
 
   // Save evaluation results to database
   useEffect(() => {
@@ -170,6 +170,19 @@ export default function EvaluationPage() {
 
     saveResults();
   }, [aiEvaluation, state, finalScore, saved, saving]);
+
+  // If no AI evaluation data, show empty state
+  if (!aiEvaluation || !evaluation) {
+    return (
+      <div className="p-8 text-center max-w-md mx-auto mt-20">
+        <h1 className="text-xl font-semibold mb-2">No Evaluation Data</h1>
+        <p className="text-sm text-muted-foreground mb-6">Complete a practice question to see your evaluation results.</p>
+        <Link to="/practice">
+          <Button>Start Practicing</Button>
+        </Link>
+      </div>
+    );
+  }
 
   const radarData = Object.entries(rubric).map(([key, val]) => ({
     subject: rubricLabels[key] || key,
