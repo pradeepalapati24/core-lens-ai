@@ -318,7 +318,7 @@ export default function PracticePage() {
                 <span className="font-medium text-foreground">{selectedSubtopic?.name}</span>
                 {" · "}
                 <span className={`font-medium ${
-                  selectedDifficulty === "beginner" ? "text-accent" :
+                  selectedDifficulty === "beginner" ? "text-success" :
                   selectedDifficulty === "intermediate" ? "text-warning" : "text-destructive"
                 }`}>
                   {selectedDifficulty?.charAt(0).toUpperCase()}{selectedDifficulty?.slice(1)}
