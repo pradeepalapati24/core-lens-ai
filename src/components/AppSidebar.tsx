@@ -81,7 +81,7 @@ export function AppSidebar() {
                 activeClassName="">
                 
                 <Settings className="h-4 w-4 shrink-0" />
-                {!collapsed && <span>Settings</span>}
+                {!collapsed && <span className="bg-primary-foreground text-popover-foreground">Settings</span>}
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
