@@ -365,7 +365,7 @@ export default function ProfilePage() {
                   <span className="text-sm font-medium">{d.domain_name}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Score: {d.avg_score.toFixed(1)} · {getPointsToNext(d.avg_score).pointsNeeded} pts to {getPointsToNext(d.avg_score).nextLevel}
+                  Score: {Math.round(d.avg_score * 10)} · {getPointsToNext(d.avg_score * 10).pointsNeeded} pts to {getPointsToNext(d.avg_score * 10).nextLevel}
                 </p>
               </Link>
             ))}
