@@ -125,22 +125,6 @@
   html {
     scroll-behavior: smooth;
   }
-  /* Force sidebar nav items to be clearly visible */
-  [data-sidebar="sidebar"] a,
-  [data-sidebar="sidebar"] button,
-  [data-sidebar="sidebar"] span {
-    color: inherit;
-  }
-  [data-sidebar="sidebar"] [data-sidebar="menu-button"] {
-    color: hsl(0 0% 100% / 0.85);
-  }
-  [data-sidebar="sidebar"] [data-sidebar="menu-button"]:hover {
-    color: hsl(0 0% 100%);
-  }
-  [data-sidebar="sidebar"] [data-sidebar="menu-button"] svg {
-    color: inherit;
-    opacity: 1;
-  }
 }
 
 @layer utilities {
