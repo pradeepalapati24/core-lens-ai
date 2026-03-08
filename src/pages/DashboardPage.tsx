@@ -86,6 +86,7 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+      <OnboardingFlow userId={userId} hasSolvedQuestions={solvedQuestions.length > 0} />
       {/* Greeting */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold mb-0.5">
