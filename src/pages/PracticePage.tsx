@@ -141,7 +141,7 @@ export default function PracticePage() {
                 <div className="text-xl mb-1">{d.icon}</div>
                 <div className="font-medium text-sm truncate">{d.name}</div>
                 <div className={`text-[10px] uppercase font-medium mt-1 ${
-                  d.type === "software" ? "text-primary" : "text-accent"
+                  d.type === "software" ? "text-primary" : "text-success"
                 }`}>
                   {d.type}
                 </div>
