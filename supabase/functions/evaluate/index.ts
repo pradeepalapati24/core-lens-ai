@@ -201,9 +201,12 @@ serve(async (req) => {
                   overallFeedback: { type: "string" },
                   expertExplanation: { type: "string" },
                   interviewReadinessScore: { type: "number", minimum: 0, maximum: 10 },
-                  hiringProbability: { type: "number", minimum: 0, maximum: 100 }
-                },
-                required: ["scores", "finalScore", "strengths", "weaknesses", "improvements", "overallFeedback", "expertExplanation", "interviewReadinessScore", "hiringProbability"]
+                      hiringProbability: { type: "number", minimum: 0, maximum: 100 },
+                      copyPasteDetected: { type: "boolean" },
+                      copyPasteConfidence: { type: "number", minimum: 0, maximum: 100 },
+                      copyPasteReason: { type: "string" }
+                    },
+                    required: ["scores", "finalScore", "strengths", "weaknesses", "improvements", "overallFeedback", "expertExplanation", "interviewReadinessScore", "hiringProbability", "copyPasteDetected", "copyPasteConfidence"]
               }
             }
           }
