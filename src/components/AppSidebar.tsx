@@ -92,7 +92,7 @@ export function AppSidebar() {
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 ${
                           active
                             ? "!bg-sidebar-primary !text-white font-medium shadow-sm"
-                            : "!text-white/80 hover:!text-white hover:!bg-white/10"
+                            : "!text-white/90 hover:!text-white hover:!bg-white/10"
                         }`}
                         activeClassName=""
                       >
