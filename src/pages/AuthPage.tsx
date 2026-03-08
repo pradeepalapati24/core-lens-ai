@@ -83,9 +83,10 @@ export default function AuthPage() {
       });
     } else {
       toast({
-        title: "Check your email",
-        description: "We've sent you a verification link.",
+        title: "Account created!",
+        description: "You can now sign in with your credentials.",
       });
+      setMode("signin");
     }
     setLoading(false);
   };
