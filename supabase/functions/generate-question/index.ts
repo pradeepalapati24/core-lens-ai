@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,24 +7,17 @@ const corsHeaders = {
 };
 
 const DOMAIN_KNOWLEDGE_MAP: Record<string, string[]> = {
-  // IT / Software Engineering
   "data-structures": ["Arrays", "Trees", "Graphs", "Linked Lists", "Hash Maps", "Stacks", "Queues", "Heaps"],
   "algorithms": ["Dynamic Programming", "Greedy Algorithms", "Divide & Conquer", "Sorting", "Searching", "Recursion"],
   "system-design": ["Scalability", "Load Balancing", "Caching", "Database Design", "Microservices", "API Design"],
   "operating-systems": ["Process Management", "Memory Management", "CPU Scheduling", "Deadlock", "Paging", "Threading"],
   "computer-networks": ["TCP/IP", "HTTP/HTTPS", "DNS", "Routing", "OSI Model", "Network Security"],
-  
-  // Core Electronics
   "digital-electronics": ["Logic Gates", "Flip Flops", "Counters", "Registers", "Boolean Algebra", "Combinational Circuits"],
   "analog-electronics": ["Op-Amps", "Transistors", "Amplifiers", "Filters", "Oscillators", "Power Supplies"],
   "embedded-systems": ["Microcontrollers", "RTOS", "GPIO", "Interrupts", "SPI", "I2C", "UART"],
   "control-systems": ["Transfer Functions", "Stability Analysis", "PID Controllers", "Root Locus", "Bode Plots"],
   "signals-systems": ["Fourier Transform", "Laplace Transform", "Z-Transform", "Convolution", "LTI Systems", "Filtering"],
-  
-  // VLSI
   "vlsi": ["CMOS Design", "RTL Design", "FPGA", "Timing Analysis", "Physical Design", "DRC & LVS", "Floorplanning"],
-  
-  // IoT
   "iot": ["Sensors", "IoT Protocols", "MQTT", "CoAP", "Edge Computing", "LoRaWAN", "Device Communication"],
 };
 
@@ -33,7 +27,7 @@ serve(async (req) => {
   }
 
   try {
-    const { domain, topic, subtopic, difficulty } = await req.json();
+    const { domain, topic, subtopic, difficulty, domainId, topicId, subtopicId } = await req.json();
     
     if (!domain || !topic || !subtopic || !difficulty) {
       return new Response(
@@ -138,10 +132,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks or additional text.`;
       throw new Error("No content in AI response");
     }
 
-    // Parse the JSON response
     let questionData;
     try {
-      // Remove any potential markdown code blocks
       const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       questionData = JSON.parse(cleanContent);
     } catch (parseError) {
@@ -149,9 +141,36 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks or additional text.`;
       throw new Error("Invalid JSON response from AI");
     }
 
-    // Add metadata
-    questionData.id = crypto.randomUUID();
+    // Generate ID and timestamp
+    const questionId = crypto.randomUUID();
+    questionData.id = questionId;
     questionData.createdAt = new Date().toISOString();
+
+    // Store question in database if we have the IDs
+    if (domainId && topicId && subtopicId) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+        await supabaseAdmin.from("questions").insert({
+          id: questionId,
+          domain_id: domainId,
+          topic_id: topicId,
+          subtopic_id: subtopicId,
+          difficulty: difficulty,
+          question_text: questionData.questionText,
+          learning_context: questionData.learningContext || null,
+          hints: questionData.hints || [],
+          expected_concepts: questionData.expectedConcepts || [],
+        });
+
+        console.log("Question stored in database:", questionId);
+      } catch (dbError) {
+        // Log but don't fail the request if DB save fails
+        console.error("Failed to store question in DB:", dbError);
+      }
+    }
 
     return new Response(
       JSON.stringify(questionData),

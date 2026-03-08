@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText, Clock, AlertTriangle } from "lucide-react";
+import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText, Clock, AlertTriangle, Clipboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 
@@ -37,6 +37,37 @@ export default function InterviewSimPage() {
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Copy-paste detection
+  const [pasteCount, setPasteCount] = useState(0);
+  const [pastedChars, setPastedChars] = useState(0);
+  const [typedChars, setTypedChars] = useState(0);
+  const [showPasteWarning, setShowPasteWarning] = useState(false);
+  const [pasteWarningLevel, setPasteWarningLevel] = useState<"none" | "warning" | "penalty">("none");
+
+  const handleExplanationPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = e.clipboardData.getData("text");
+    const newPasteCount = pasteCount + 1;
+    setPasteCount(newPasteCount);
+    setPastedChars(prev => prev + pastedText.length);
+    if (newPasteCount === 1 && pastedText.length > 50) {
+      setPasteWarningLevel("warning");
+      setShowPasteWarning(true);
+      setTimeout(() => setShowPasteWarning(false), 5000);
+    } else if (newPasteCount >= 2) {
+      setPasteWarningLevel("penalty");
+      setShowPasteWarning(true);
+      setTimeout(() => setShowPasteWarning(false), 6000);
+    }
+  };
+
+  const handleExplanationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    if (newVal.length > explanation.length && newVal.length - explanation.length <= 2) {
+      setTypedChars(prev => prev + (newVal.length - explanation.length));
+    }
+    setExplanation(newVal);
+  };
 
 
   useEffect(() => {
@@ -90,6 +121,9 @@ export default function InterviewSimPage() {
             topic: meta?.topic,
             subtopic: meta?.subtopic,
             difficulty: meta?.difficulty || "intermediate",
+            domainId: meta?.domainId,
+            topicId: meta?.topicId,
+            subtopicId: meta?.subtopicId,
           }),
         }
       );
@@ -143,7 +177,7 @@ export default function InterviewSimPage() {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/evaluate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ problem: question.questionText, code: includeCode ? code : null, explanation, domain: question.domain, topic: question.topic }),
+        body: JSON.stringify({ problem: question.questionText, code: includeCode ? code : null, explanation, domain: question.domain, topic: question.topic, pasteMetrics: { pasteCount, pastedChars, typedChars, totalChars: explanation.length, pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0 } }),
       });
       clearInterval(si);
       if (!response.ok) { toast({ variant: "destructive", title: "Evaluation Failed", description: "Something went wrong." }); setIsSubmitting(false); return; }
@@ -153,6 +187,7 @@ export default function InterviewSimPage() {
           code: includeCode ? code : null, explanation, question, includeCode, evaluation,
           domain: question.domain, topic: question.topic,
           interviewMode: true, timeUsed: totalTime - timeLeft, totalTime,
+          pasteMetrics: { pasteCount, pastedChars, typedChars, totalChars: explanation.length, pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0 },
         },
       });
     } catch {
@@ -318,7 +353,8 @@ export default function InterviewSimPage() {
                 <div className="relative">
                   <textarea
                     value={explanation}
-                    onChange={(e) => setExplanation(e.target.value)}
+                    onChange={handleExplanationChange}
+                    onPaste={handleExplanationPaste}
                     placeholder="Type or use voice to explain..."
                     className="w-full min-h-[200px] p-4 rounded-lg border border-border bg-card text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   />
@@ -328,6 +364,20 @@ export default function InterviewSimPage() {
                     </button>
                   </div>
                 </div>
+                {showPasteWarning && (
+                  <div className={`mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs ${
+                    pasteWarningLevel === "penalty" 
+                      ? "bg-destructive/10 border-destructive/20 text-destructive" 
+                      : "bg-warning/10 border-warning/20 text-warning"
+                  }`}>
+                    <Clipboard className="w-3.5 h-3.5 shrink-0" />
+                    <span>
+                      {pasteWarningLevel === "penalty" 
+                        ? `⛔ Multiple pastes detected (${pasteCount}x) — Negative points will be deducted`
+                        : "⚠ Paste detected — AI evaluation will check for originality"}
+                    </span>
+                  </div>
+                )}
 
                 <div className="mt-6 flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">{explanation.length} characters</p>

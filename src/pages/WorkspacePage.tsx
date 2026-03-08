@@ -46,20 +46,29 @@ export default function WorkspacePage() {
   const [pastedChars, setPastedChars] = useState(0);
   const [typedChars, setTypedChars] = useState(0);
   const [showPasteWarning, setShowPasteWarning] = useState(false);
+  const [pasteWarningLevel, setPasteWarningLevel] = useState<"none" | "warning" | "penalty">("none");
 
   const handleExplanationPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = e.clipboardData.getData("text");
-    setPasteCount(prev => prev + 1);
+    const newPasteCount = pasteCount + 1;
+    setPasteCount(newPasteCount);
     setPastedChars(prev => prev + pastedText.length);
-    if (pastedText.length > 50) {
+    
+    if (newPasteCount === 1 && pastedText.length > 50) {
+      // First paste: show ⚠ warning
+      setPasteWarningLevel("warning");
       setShowPasteWarning(true);
-      setTimeout(() => setShowPasteWarning(false), 4000);
+      setTimeout(() => setShowPasteWarning(false), 5000);
+    } else if (newPasteCount >= 2) {
+      // 2+ pastes: show penalty warning
+      setPasteWarningLevel("penalty");
+      setShowPasteWarning(true);
+      setTimeout(() => setShowPasteWarning(false), 6000);
     }
   };
 
   const handleExplanationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newVal = e.target.value;
-    // Only count as typed if length grew by 1-2 chars (normal typing)
     if (newVal.length > explanation.length && newVal.length - explanation.length <= 2) {
       setTypedChars(prev => prev + (newVal.length - explanation.length));
     }
@@ -89,6 +98,9 @@ export default function WorkspacePage() {
             topic: meta?.topic || "Trees",
             subtopic: meta?.subtopic || "Binary Search Tree",
             difficulty: meta?.difficulty || "intermediate",
+            domainId: meta?.domainId,
+            topicId: meta?.topicId,
+            subtopicId: meta?.subtopicId,
           }),
         }
       );
@@ -487,9 +499,17 @@ export default function WorkspacePage() {
                       autoFocus
                     />
                     {showPasteWarning && (
-                      <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-warning/10 border border-warning/20 text-xs text-warning">
+                      <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={`mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs ${
+                        pasteWarningLevel === "penalty" 
+                          ? "bg-destructive/10 border-destructive/20 text-destructive" 
+                          : "bg-warning/10 border-warning/20 text-warning"
+                      }`}>
                         <Clipboard className="w-3.5 h-3.5 shrink-0" />
-                        <span>Paste detected — AI evaluation will check for originality</span>
+                        <span>
+                          {pasteWarningLevel === "penalty" 
+                            ? `⛔ Multiple pastes detected (${pasteCount}x) — Negative points will be deducted from your score`
+                            : "⚠ Paste detected — AI evaluation will check for originality"}
+                        </span>
                       </motion.div>
                     )}
                     <button
@@ -541,9 +561,17 @@ export default function WorkspacePage() {
                   autoFocus
                 />
                 {showPasteWarning && (
-                  <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-warning/10 border border-warning/20 text-xs text-warning">
+                  <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={`mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs ${
+                    pasteWarningLevel === "penalty" 
+                      ? "bg-destructive/10 border-destructive/20 text-destructive" 
+                      : "bg-warning/10 border-warning/20 text-warning"
+                  }`}>
                     <Clipboard className="w-3.5 h-3.5 shrink-0" />
-                    <span>Paste detected — AI evaluation will check for originality</span>
+                    <span>
+                      {pasteWarningLevel === "penalty" 
+                        ? `⛔ Multiple pastes detected (${pasteCount}x) — Negative points will be deducted from your score`
+                        : "⚠ Paste detected — AI evaluation will check for originality"}
+                    </span>
                   </motion.div>
                 )}
                 <button

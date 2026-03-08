@@ -47,6 +47,8 @@ export default function EvaluationPage() {
   const copyPasteReason = aiEvaluation?.copyPasteReason || "";
   const pasteMetrics = state?.pasteMetrics;
   const hasPasteFlag = copyPasteDetected || (pasteMetrics?.pasteRatio > 0.7);
+  const hasMultiplePastes = (pasteMetrics?.pasteCount || 0) >= 2;
+  const negativePenalty = hasMultiplePastes ? Math.min((pasteMetrics?.pasteCount || 0) * 15, 50) : 0;
 
   const rubric = aiEvaluation?.scores || {};
   const finalScore = aiEvaluation?.finalScore ?? 0;
@@ -62,12 +64,10 @@ export default function EvaluationPage() {
       setSaving(true);
 
       try {
-        // Get domain and topic IDs from state
         const domainId = state?.question?.domainId || state?.domainId;
         const topicId = state?.question?.topicId || state?.topicId;
         const subtopicId = state?.question?.subtopicId || state?.subtopicId;
 
-        // If we don't have IDs, try to look them up by name
         let resolvedDomainId = domainId;
         let resolvedTopicId = topicId;
         let resolvedSubtopicId = subtopicId;
@@ -89,6 +89,27 @@ export default function EvaluationPage() {
             .eq("domain_id", resolvedDomainId)
             .single();
           resolvedTopicId = topicData?.id;
+        }
+
+        // Calculate points: base points minus penalty for copy-paste
+        const basePoints = Math.round(finalScore * 10);
+        const pointsEarned = hasMultiplePastes 
+          ? Math.max(basePoints - negativePenalty, -20) // Can go negative up to -20
+          : basePoints;
+
+        // Update user profile points
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("points")
+          .eq("id", user.id)
+          .single();
+
+        if (profile) {
+          const newPoints = Math.max((profile.points || 0) + pointsEarned, 0);
+          await supabase
+            .from("profiles")
+            .update({ points: newPoints })
+            .eq("id", user.id);
         }
 
         // Update domain performance
@@ -175,7 +196,7 @@ export default function EvaluationPage() {
     };
 
     saveResults();
-  }, [aiEvaluation, state, finalScore, saved, saving]);
+  }, [aiEvaluation, state, finalScore, saved, saving, hasMultiplePastes, negativePenalty]);
 
   // If no AI evaluation data, show empty state
   if (!aiEvaluation || !evaluation) {
@@ -252,6 +273,19 @@ export default function EvaluationPage() {
             )}
           </div>
           <ShieldAlert className="w-5 h-5 text-destructive/60 shrink-0" />
+        </motion.div>
+      )}
+
+      {/* Negative Points Penalty Banner */}
+      {hasMultiplePastes && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/30">
+          <span className="text-2xl">⛔</span>
+          <div className="flex-1">
+            <h4 className="text-sm font-bold text-destructive">Negative Points Applied: -{negativePenalty} pts</h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              You pasted {pasteMetrics?.pasteCount}x during your explanation. First paste triggers a warning (⚠), but repeated pasting results in point deductions. Write your own explanations to earn full points.
+            </p>
+          </div>
         </motion.div>
       )}
 
