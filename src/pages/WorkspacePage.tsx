@@ -480,11 +480,18 @@ export default function WorkspacePage() {
 
                     <textarea
                       value={explanation}
-                      onChange={(e) => setExplanation(e.target.value)}
+                      onChange={handleExplanationChange}
+                      onPaste={handleExplanationPaste}
                       placeholder="Explain your approach, time/space complexity, and any trade-offs. The more detailed, the better your evaluation will be..."
                       className="w-full bg-muted/30 border border-border rounded-lg p-4 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary/30 h-48"
                       autoFocus
                     />
+                    {showPasteWarning && (
+                      <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-warning/10 border border-warning/20 text-xs text-warning">
+                        <Clipboard className="w-3.5 h-3.5 shrink-0" />
+                        <span>Paste detected — AI evaluation will check for originality</span>
+                      </motion.div>
+                    )}
                     <button
                       onClick={toggleRecording}
                       className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
