@@ -274,6 +274,44 @@ export default function DashboardPage() {
         </motion.div>
       </div>
 
+      {/* AI Learning Insights */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.37 }} className="surface-elevated p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold">AI Learning Insights</h3>
+            <p className="text-xs text-muted-foreground">Personalized analysis from your past evaluations</p>
+          </div>
+        </div>
+        {domainPerformance.length === 0 ? (
+          <div className="text-center py-6">
+            <p className="text-sm text-muted-foreground mb-2">Complete evaluations to unlock AI insights</p>
+            <Link to="/practice"><Button variant="outline" size="sm" className="text-xs">Start practicing</Button></Link>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {(() => {
+              const insights: string[] = [];
+              const { strong, weak } = getStrongWeakDomains(domainPerformance);
+              if (strong.length > 0) insights.push(`Your strongest domain is ${strong[0].domain_name} with an average score of ${Math.round(strong[0].avg_score * 10)}/100.`);
+              if (weak.length > 0) insights.push(`You should practice more questions in ${weak[0].domain_name} — it's your weakest area at ${Math.round(weak[0].avg_score * 10)}/100.`);
+              if (totalSolved > 5) insights.push(`You've solved ${totalSolved} questions. Keep the momentum going to improve your interview readiness.`);
+              if (avgScore >= 70) insights.push("Your overall reasoning quality is strong. Focus on edge cases and system design thinking to reach expert level.");
+              else if (avgScore >= 40) insights.push("Your understanding is growing. Focus on explaining your reasoning step-by-step to improve communication scores.");
+              else insights.push("Start by solving beginner-level problems and focus on clear, structured explanations to build a strong foundation.");
+              return insights.map((insight, i) => (
+                <div key={i} className="flex items-start gap-2.5 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                  <span className="text-primary text-xs mt-0.5">💡</span>
+                  <p className="text-xs text-foreground leading-relaxed">{insight}</p>
+                </div>
+              ));
+            })()}
+          </div>
+        )}
+      </motion.div>
+
       {/* Challenge — Secondary collaborative feature */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="surface-elevated p-6">
         <div className="flex items-center justify-between">
