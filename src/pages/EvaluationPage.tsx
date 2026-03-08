@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { mockEvaluation } from "@/lib/mockData";
-import { ArrowLeft, CheckCircle, AlertTriangle, Lightbulb, ArrowRight, BookOpen, Percent } from "lucide-react";
+import { ArrowLeft, CheckCircle, AlertTriangle, Lightbulb, ArrowRight, BookOpen, Percent, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
@@ -9,31 +9,58 @@ import {
 } from "recharts";
 
 const rubricLabels: Record<string, string> = {
-  problemUnderstanding: "Understanding",
+  understanding: "Understanding",
   algorithmicThinking: "Algorithmic",
   codeQuality: "Code Quality",
+  edgeCases: "Edge Cases",
+  communication: "Communication",
+  domainKnowledge: "Domain",
+  // Legacy mappings
+  problemUnderstanding: "Understanding",
   edgeCaseAwareness: "Edge Cases",
   communicationClarity: "Communication",
-  domainKnowledge: "Domain",
 };
 
 export default function EvaluationPage() {
-  const evaluation = mockEvaluation;
+  const location = useLocation();
+  const state = location.state as any;
 
-  const radarData = Object.entries(evaluation.rubric).map(([key, val]) => ({
+  // Use AI evaluation if available, otherwise fallback to mock
+  const aiEvaluation = state?.evaluation;
+  
+  // Build evaluation object from AI response or mock
+  const evaluation = aiEvaluation ? {
+    finalScore: aiEvaluation.finalScore || 0,
+    rubric: aiEvaluation.scores || {},
+    strengths: aiEvaluation.strengths || [],
+    weaknesses: aiEvaluation.weaknesses || [],
+    suggestions: aiEvaluation.improvements || [],
+    nextSteps: aiEvaluation.improvements?.slice(0, 4) || [],
+    expertExplanation: aiEvaluation.expertExplanation || aiEvaluation.overallFeedback || "",
+    hiringProbability: aiEvaluation.hiringProbability || 0,
+    interviewReadiness: aiEvaluation.interviewReadinessScore || 0,
+  } : mockEvaluation;
+
+  const rubric = aiEvaluation?.scores || evaluation.rubric || {};
+
+  const radarData = Object.entries(rubric).map(([key, val]) => ({
     subject: rubricLabels[key] || key,
-    score: val,
+    score: val as number,
     fullMark: 10,
   }));
 
-  const barData = Object.entries(evaluation.rubric).map(([key, val]) => ({
+  const barData = Object.entries(rubric).map(([key, val]) => ({
     name: rubricLabels[key] || key,
-    score: val,
-    lost: 10 - val,
+    score: val as number,
+    lost: 10 - (val as number),
   }));
 
-  const scoreColor = evaluation.finalScore >= 7 ? "text-accent" : evaluation.finalScore >= 5 ? "text-warning" : "text-destructive";
-  const hiringProb = Math.round(evaluation.finalScore * 10);
+  const finalScore = aiEvaluation?.finalScore ?? evaluation.finalScore ?? 0;
+  const scoreColor = finalScore >= 7 ? "text-accent" : finalScore >= 5 ? "text-warning" : "text-destructive";
+  const hiringProb = aiEvaluation?.hiringProbability ?? Math.round(finalScore * 10);
+
+  const questionTitle = state?.question?.topic || "Evaluation";
+  const questionSubtopic = state?.question?.subtopic || "Results";
 
   return (
     <div className="p-8 space-y-8 max-w-5xl mx-auto">
@@ -43,14 +70,14 @@ export default function EvaluationPage() {
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-[28px] font-semibold mb-1">Evaluation Results</h1>
-        <p className="text-sm text-muted-foreground">Binary Search Tree — Validate BST</p>
+        <p className="text-sm text-muted-foreground">{state?.domain || questionTitle} — {state?.topic || questionSubtopic}</p>
       </motion.div>
 
       {/* Score Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="surface-elevated p-6 text-center">
           <div className="text-xs text-muted-foreground mb-2">Final Score</div>
-          <div className={`text-5xl font-bold ${scoreColor}`}>{evaluation.finalScore.toFixed(1)}</div>
+          <div className={`text-5xl font-bold ${scoreColor}`}>{finalScore.toFixed(1)}</div>
           <div className="text-xs text-muted-foreground mt-1">out of 10.0</div>
         </motion.div>
 
@@ -60,6 +87,14 @@ export default function EvaluationPage() {
           </div>
           <div className={`text-5xl font-bold ${scoreColor}`}>{hiringProb}%</div>
           <div className="text-xs text-muted-foreground mt-1">based on rubric analysis</div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="surface-elevated p-6 text-center">
+          <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground mb-2">
+            <Target className="w-3.5 h-3.5" /> Interview Readiness
+          </div>
+          <div className={`text-5xl font-bold ${scoreColor}`}>{(aiEvaluation?.interviewReadinessScore ?? finalScore).toFixed(1)}</div>
+          <div className="text-xs text-muted-foreground mt-1">readiness score</div>
         </motion.div>
       </div>
 
@@ -91,55 +126,55 @@ export default function EvaluationPage() {
         </motion.div>
       </div>
 
+      {/* Overall Feedback */}
+      {aiEvaluation?.overallFeedback && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="surface-elevated p-5">
+          <h3 className="text-sm font-medium mb-3">Overall Feedback</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">{aiEvaluation.overallFeedback}</p>
+        </motion.div>
+      )}
+
       {/* Strengths / Weaknesses / Suggestions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="surface-elevated p-5">
           <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><CheckCircle className="w-3.5 h-3.5 text-accent" /> Strengths</h3>
           <ul className="space-y-1.5">
-            {evaluation.strengths.map((s, i) => <li key={i} className="text-xs text-muted-foreground flex items-start gap-2"><span className="text-accent mt-0.5">•</span>{s}</li>)}
+            {(evaluation.strengths || []).map((s: string, i: number) => <li key={i} className="text-xs text-muted-foreground flex items-start gap-2"><span className="text-accent mt-0.5">•</span>{s}</li>)}
           </ul>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="surface-elevated p-5">
           <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><AlertTriangle className="w-3.5 h-3.5 text-warning" /> Weaknesses</h3>
           <ul className="space-y-1.5">
-            {evaluation.weaknesses.map((w, i) => <li key={i} className="text-xs text-muted-foreground flex items-start gap-2"><span className="text-warning mt-0.5">•</span>{w}</li>)}
+            {(evaluation.weaknesses || []).map((w: string, i: number) => <li key={i} className="text-xs text-muted-foreground flex items-start gap-2"><span className="text-warning mt-0.5">•</span>{w}</li>)}
           </ul>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="surface-elevated p-5">
-          <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><Lightbulb className="w-3.5 h-3.5 text-primary" /> Suggestions</h3>
+          <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><Lightbulb className="w-3.5 h-3.5 text-primary" /> Improvements</h3>
           <ul className="space-y-1.5">
-            {evaluation.suggestions.map((s, i) => <li key={i} className="text-xs text-muted-foreground flex items-start gap-2"><span className="text-primary mt-0.5">•</span>{s}</li>)}
+            {(evaluation.suggestions || []).map((s: string, i: number) => <li key={i} className="text-xs text-muted-foreground flex items-start gap-2"><span className="text-primary mt-0.5">•</span>{s}</li>)}
           </ul>
         </motion.div>
       </div>
 
-      {/* Next Steps */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="surface-elevated p-5">
-        <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><ArrowRight className="w-3.5 h-3.5" /> Next Learning Steps</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {evaluation.nextSteps.map((s, i) => (
-            <div key={i} className="p-2.5 rounded-md bg-muted/20 text-xs text-muted-foreground">{s}</div>
-          ))}
-        </div>
-      </motion.div>
-
       {/* Expert Explanation */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="surface-elevated p-5">
-        <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><BookOpen className="w-3.5 h-3.5 text-primary" /> Expert Explanation</h3>
-        <div className="prose prose-sm max-w-none">
-          {evaluation.expertExplanation.split("\n").map((line, i) => {
-            if (line.startsWith("## ")) return <h2 key={i} className="text-sm font-semibold mt-3 mb-1.5 text-foreground">{line.replace("## ", "")}</h2>;
-            if (line.startsWith("```")) return null;
-            if (line.startsWith("**")) return <p key={i} className="text-xs font-medium text-foreground mb-1">{line.replace(/\*\*/g, "")}</p>;
-            return <p key={i} className="text-xs text-muted-foreground mb-1">{line}</p>;
-          })}
-        </div>
-      </motion.div>
+      {evaluation.expertExplanation && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="surface-elevated p-5">
+          <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><BookOpen className="w-3.5 h-3.5 text-primary" /> Expert Explanation</h3>
+          <div className="prose prose-sm max-w-none">
+            {evaluation.expertExplanation.split("\n").map((line: string, i: number) => {
+              if (line.startsWith("## ")) return <h2 key={i} className="text-sm font-semibold mt-3 mb-1.5 text-foreground">{line.replace("## ", "")}</h2>;
+              if (line.startsWith("```")) return null;
+              if (line.startsWith("**")) return <p key={i} className="text-xs font-medium text-foreground mb-1">{line.replace(/\*\*/g, "")}</p>;
+              return <p key={i} className="text-xs text-muted-foreground mb-1">{line}</p>;
+            })}
+          </div>
+        </motion.div>
+      )}
 
       <div className="text-center pb-4">
-        <Link to="/practice">
+        <Link to="/domains">
           <Button size="lg" className="h-9 px-6 text-sm font-medium">
             Practice Another Question <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
           </Button>

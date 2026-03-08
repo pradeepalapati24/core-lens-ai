@@ -4,11 +4,13 @@ import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { mockQuestion } from "@/lib/mockData";
-import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play } from "lucide-react";
+import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function WorkspacePage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const meta = location.state as any;
 
   // Check if code should be included (IT domains can choose, Core domains always theory-only)
@@ -21,6 +23,8 @@ export default function WorkspacePage() {
   const [revealedHints, setRevealedHints] = useState(0);
   const [showContext, setShowContext] = useState(true);
   const [language, setLanguage] = useState("javascript");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [evaluationStep, setEvaluationStep] = useState("");
   const recognitionRef = useRef<any>(null);
 
   const question = mockQuestion;
@@ -59,8 +63,95 @@ export default function WorkspacePage() {
     setIsRecording(true);
   };
 
-  const handleSubmit = () => {
-    navigate("/evaluation", { state: { code: includeCode ? code : null, explanation, question, includeCode } });
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    
+    const evaluationSteps = [
+      "Analyzing reasoning...",
+      "Evaluating code quality...",
+      "Checking edge cases...",
+      "Generating feedback...",
+    ];
+
+    let stepIndex = 0;
+    setEvaluationStep(evaluationSteps[0]);
+    
+    const stepInterval = setInterval(() => {
+      stepIndex++;
+      if (stepIndex < evaluationSteps.length) {
+        setEvaluationStep(evaluationSteps[stepIndex]);
+      }
+    }, 1500);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/evaluate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            problem: question.questionText,
+            code: includeCode ? code : null,
+            explanation,
+            domain: meta?.domain || question.domain,
+            topic: meta?.topic || question.topic,
+          }),
+        }
+      );
+
+      clearInterval(stepInterval);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 429) {
+          toast({
+            variant: "destructive",
+            title: "Rate Limited",
+            description: "Too many requests. Please wait a moment and try again.",
+          });
+        } else if (response.status === 402) {
+          toast({
+            variant: "destructive",
+            title: "Payment Required",
+            description: "Please add funds to continue using AI evaluation.",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Evaluation Failed",
+            description: errorData.error || "Something went wrong. Please try again.",
+          });
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      const evaluation = await response.json();
+      
+      navigate("/evaluation", {
+        state: {
+          code: includeCode ? code : null,
+          explanation,
+          question,
+          includeCode,
+          evaluation,
+          domain: meta?.domain || question.domain,
+          topic: meta?.topic || question.topic,
+        },
+      });
+    } catch (error) {
+      clearInterval(stepInterval);
+      console.error("Evaluation error:", error);
+      toast({
+        variant: "destructive",
+        title: "Connection Error",
+        description: "Failed to connect to the evaluation service.",
+      });
+      setIsSubmitting(false);
+    }
   };
 
   // Determine if submit button should be enabled
@@ -90,6 +181,21 @@ export default function WorkspacePage() {
           </span>
         </div>
       </div>
+
+      {/* Evaluation Loading Overlay */}
+      {isSubmitting && (
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card border border-border rounded-xl p-8 text-center max-w-sm"
+          >
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+            <h3 className="font-semibold text-lg mb-2">Evaluating Submission</h3>
+            <p className="text-sm text-muted-foreground">{evaluationStep}</p>
+          </motion.div>
+        </div>
+      )}
 
       <div className={`flex-1 grid grid-cols-1 ${includeCode ? 'lg:grid-cols-12' : 'lg:grid-cols-2'} min-h-0`}>
         {/* Left: Question */}
@@ -222,8 +328,20 @@ export default function WorkspacePage() {
           </div>
 
           <div className="p-4 border-t border-border">
-            <Button className="w-full h-9 font-medium text-sm" onClick={handleSubmit} disabled={!canSubmit}>
-              <Send className="w-3.5 h-3.5 mr-1.5" /> {includeCode ? "Submit Solution" : "Submit Answer"}
+            <Button 
+              className="w-full h-9 font-medium text-sm" 
+              onClick={handleSubmit} 
+              disabled={!canSubmit || isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Evaluating...
+                </>
+              ) : (
+                <>
+                  <Send className="w-3.5 h-3.5 mr-1.5" /> {includeCode ? "Submit Solution" : "Submit Answer"}
+                </>
+              )}
             </Button>
           </div>
         </div>
