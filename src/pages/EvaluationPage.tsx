@@ -224,8 +224,8 @@ export default function EvaluationPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="surface-elevated p-6 text-center">
           <div className="text-xs text-muted-foreground mb-2">Final Score</div>
-          <div className={`text-5xl font-bold ${scoreColor}`}>{finalScore.toFixed(1)}</div>
-          <div className="text-xs text-muted-foreground mt-1">out of 10.0</div>
+          <div className={`text-5xl font-bold ${scoreColor}`}>{Math.round(displayScore)}</div>
+          <div className="text-xs text-muted-foreground mt-1">out of 100</div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="surface-elevated p-6 text-center">
@@ -240,8 +240,8 @@ export default function EvaluationPage() {
           <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground mb-2">
             <Target className="w-3.5 h-3.5" /> Interview Readiness
           </div>
-          <div className={`text-5xl font-bold ${scoreColor}`}>{(aiEvaluation?.interviewReadinessScore ?? finalScore).toFixed(1)}</div>
-          <div className="text-xs text-muted-foreground mt-1">readiness score</div>
+          <div className={`text-5xl font-bold ${scoreColor}`}>{Math.round((aiEvaluation?.interviewReadinessScore ?? finalScore) * 10)}</div>
+          <div className="text-xs text-muted-foreground mt-1">out of 100</div>
         </motion.div>
       </div>
 
