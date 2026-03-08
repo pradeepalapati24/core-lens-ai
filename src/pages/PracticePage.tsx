@@ -37,14 +37,12 @@ export default function PracticePage() {
   const steps = [
     // Step 0: Domain
     <div key="domain">
-      <h2 className="text-2xl font-bold mb-2">Select Domain</h2>
-      <p className="text-muted-foreground text-sm mb-6">Choose your engineering domain</p>
       <div className="flex gap-2 mb-6">
         {(["all", "it", "core"] as const).map((c) => (
           <button
             key={c}
             onClick={() => setCategoryFilter(c)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${categoryFilter === c ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-surface-hover"}`}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${categoryFilter === c ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
             {c === "all" ? "All" : c === "it" ? "IT / Software" : "Core / Hardware"}
           </button>
@@ -55,12 +53,12 @@ export default function PracticePage() {
           <button
             key={d.id}
             onClick={() => { setSelectedDomain(d); setStep(1); }}
-            className={`card-glow text-left p-5 rounded-xl transition-all ${selectedDomain?.id === d.id ? "border-primary bg-primary/5" : ""}`}
+            className={`card-hover text-left p-[18px] ${selectedDomain?.id === d.id ? "border-primary/30" : ""}`}
           >
-            <div className="text-2xl mb-2">{d.icon}</div>
-            <div className="font-semibold">{d.name}</div>
-            <div className="text-sm text-muted-foreground mt-0.5">{d.description}</div>
-            <div className="mt-3 text-xs text-muted-foreground">{d.topics.length} topics · {d.topics.reduce((a, t) => a + t.subtopics.length, 0)} subtopics</div>
+            <div className="text-xl mb-1.5">{d.icon}</div>
+            <div className="font-medium text-sm">{d.name}</div>
+            <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{d.description}</div>
+            <div className="mt-2 text-[11px] text-muted-foreground">{d.topics.length} topics · {d.topics.reduce((a, t) => a + t.subtopics.length, 0)} subtopics</div>
           </button>
         ))}
       </div>
@@ -68,17 +66,15 @@ export default function PracticePage() {
 
     // Step 1: Topic
     <div key="topic">
-      <h2 className="text-2xl font-bold mb-2">Select Topic</h2>
-      <p className="text-muted-foreground text-sm mb-6">{selectedDomain?.name}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {selectedDomain?.topics.map((t) => (
           <button
             key={t.id}
             onClick={() => { setSelectedTopic(t); setStep(2); }}
-            className={`card-glow text-left p-5 rounded-xl transition-all ${selectedTopic?.id === t.id ? "border-primary bg-primary/5" : ""}`}
+            className={`card-hover text-left p-[18px] ${selectedTopic?.id === t.id ? "border-primary/30" : ""}`}
           >
-            <div className="font-semibold">{t.name}</div>
-            <div className="text-sm text-muted-foreground mt-0.5">{t.subtopics.length} subtopics</div>
+            <div className="font-medium text-sm">{t.name}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{t.subtopics.length} subtopics</div>
           </button>
         ))}
       </div>
@@ -86,16 +82,14 @@ export default function PracticePage() {
 
     // Step 2: Subtopic
     <div key="subtopic">
-      <h2 className="text-2xl font-bold mb-2">Select Subtopic</h2>
-      <p className="text-muted-foreground text-sm mb-6">{selectedDomain?.name} → {selectedTopic?.name}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {selectedTopic?.subtopics.map((s) => (
           <button
             key={s.id}
             onClick={() => { setSelectedSubtopic(s); setStep(3); }}
-            className={`card-glow text-left p-5 rounded-xl transition-all ${selectedSubtopic?.id === s.id ? "border-primary bg-primary/5" : ""}`}
+            className={`card-hover text-left p-[18px] ${selectedSubtopic?.id === s.id ? "border-primary/30" : ""}`}
           >
-            <div className="font-semibold">{s.name}</div>
+            <div className="font-medium text-sm">{s.name}</div>
           </button>
         ))}
       </div>
@@ -103,58 +97,76 @@ export default function PracticePage() {
 
     // Step 3: Difficulty
     <div key="difficulty">
-      <h2 className="text-2xl font-bold mb-2">Select Difficulty</h2>
-      <p className="text-muted-foreground text-sm mb-6">{selectedDomain?.name} → {selectedTopic?.name} → {selectedSubtopic?.name}</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {difficultyConfig.map((d) => (
           <button
             key={d.value}
             onClick={() => setSelectedDifficulty(d.value)}
-            className={`card-glow p-8 rounded-xl text-center transition-all ${selectedDifficulty === d.value ? "border-primary bg-primary/5" : ""}`}
+            className={`card-hover p-6 text-center ${selectedDifficulty === d.value ? "border-primary/30" : ""}`}
           >
-            <d.icon className={`w-8 h-8 mx-auto mb-3 ${d.color}`} />
-            <div className="font-semibold text-lg">{d.label}</div>
+            <d.icon className={`w-6 h-6 mx-auto mb-2 ${d.color}`} />
+            <div className="font-medium text-sm">{d.label}</div>
           </button>
         ))}
       </div>
       {selectedDifficulty && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 text-center">
-          <Button size="lg" className="h-12 px-10 text-base font-semibold glow-primary" onClick={handleStart}>
-            Start Question <ArrowRight className="w-4 h-4 ml-2" />
+          <Button size="lg" className="h-10 px-8 text-sm font-medium" onClick={handleStart}>
+            Start Question <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
           </Button>
         </motion.div>
       )}
     </div>,
   ];
 
+  const stepLabels = ["Domain", "Topic", "Subtopic", "Difficulty"];
+  const stepTitles = [
+    "Select Domain",
+    `Select Topic`,
+    `Select Subtopic`,
+    `Select Difficulty`,
+  ];
+  const stepDescs = [
+    "Choose your engineering domain",
+    selectedDomain?.name || "",
+    `${selectedDomain?.name} → ${selectedTopic?.name}`,
+    `${selectedDomain?.name} → ${selectedTopic?.name} → ${selectedSubtopic?.name}`,
+  ];
+
   return (
-    <div className="p-6">
+    <div className="p-8 max-w-5xl mx-auto">
       {/* Progress */}
       <div className="flex items-center gap-2 mb-8">
-        {["Domain", "Topic", "Subtopic", "Difficulty"].map((label, i) => (
+        {stepLabels.map((label, i) => (
           <div key={label} className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${i <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-medium transition-colors ${i <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
               {i + 1}
             </div>
-            <span className={`text-sm hidden sm:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-            {i < 3 && <div className={`w-8 h-px ${i < step ? "bg-primary" : "bg-border"}`} />}
+            <span className={`text-xs hidden sm:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
+            {i < 3 && <div className={`w-6 h-px ${i < step ? "bg-primary/50" : "bg-border"}`} />}
           </div>
         ))}
       </div>
 
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-[28px] font-semibold mb-1">{stepTitles[step]}</h1>
+        <p className="text-sm text-muted-foreground">{stepDescs[step]}</p>
+      </div>
+
       {step > 0 && (
-        <button onClick={() => setStep(step - 1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
+        <button onClick={() => setStep(step - 1)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-4 transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back
         </button>
       )}
 
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.25 }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
         >
           {steps[step]}
         </motion.div>
