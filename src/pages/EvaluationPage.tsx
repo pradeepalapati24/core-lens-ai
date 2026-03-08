@@ -1,12 +1,14 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { mockEvaluation } from "@/lib/mockData";
-import { ArrowLeft, CheckCircle, AlertTriangle, Lightbulb, ArrowRight, BookOpen, Percent, Target } from "lucide-react";
+import { ArrowLeft, CheckCircle, AlertTriangle, Lightbulb, ArrowRight, BookOpen, Percent, Target, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
 
 const rubricLabels: Record<string, string> = {
   understanding: "Understanding",
@@ -15,7 +17,6 @@ const rubricLabels: Record<string, string> = {
   edgeCases: "Edge Cases",
   communication: "Communication",
   domainKnowledge: "Domain",
-  // Legacy mappings
   problemUnderstanding: "Understanding",
   edgeCaseAwareness: "Edge Cases",
   communicationClarity: "Communication",
@@ -24,11 +25,11 @@ const rubricLabels: Record<string, string> = {
 export default function EvaluationPage() {
   const location = useLocation();
   const state = location.state as any;
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-  // Use AI evaluation if available, otherwise fallback to mock
   const aiEvaluation = state?.evaluation;
   
-  // Build evaluation object from AI response or mock
   const evaluation = aiEvaluation ? {
     finalScore: aiEvaluation.finalScore || 0,
     rubric: aiEvaluation.scores || {},
@@ -42,6 +43,133 @@ export default function EvaluationPage() {
   } : mockEvaluation;
 
   const rubric = aiEvaluation?.scores || evaluation.rubric || {};
+  const finalScore = aiEvaluation?.finalScore ?? evaluation.finalScore ?? 0;
+
+  // Save evaluation results to database
+  useEffect(() => {
+    const saveResults = async () => {
+      if (saved || saving || !aiEvaluation) return;
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      setSaving(true);
+
+      try {
+        // Get domain and topic IDs from state
+        const domainId = state?.question?.domainId || state?.domainId;
+        const topicId = state?.question?.topicId || state?.topicId;
+        const subtopicId = state?.question?.subtopicId || state?.subtopicId;
+
+        // If we don't have IDs, try to look them up by name
+        let resolvedDomainId = domainId;
+        let resolvedTopicId = topicId;
+        let resolvedSubtopicId = subtopicId;
+
+        if (!resolvedDomainId && state?.domain) {
+          const { data: domainData } = await supabase
+            .from("domains")
+            .select("id")
+            .eq("name", state.domain)
+            .single();
+          resolvedDomainId = domainData?.id;
+        }
+
+        if (!resolvedTopicId && state?.topic && resolvedDomainId) {
+          const { data: topicData } = await supabase
+            .from("topics")
+            .select("id")
+            .eq("name", state.topic)
+            .eq("domain_id", resolvedDomainId)
+            .single();
+          resolvedTopicId = topicData?.id;
+        }
+
+        // Update domain performance
+        if (resolvedDomainId) {
+          const { data: existingDomainPerf } = await supabase
+            .from("user_performance")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("domain_id", resolvedDomainId)
+            .is("topic_id", null)
+            .is("subtopic_id", null)
+            .single();
+
+          if (existingDomainPerf) {
+            const newTotal = existingDomainPerf.total_questions + 1;
+            const newAvg = ((existingDomainPerf.avg_score * existingDomainPerf.total_questions) + finalScore) / newTotal;
+            
+            await supabase
+              .from("user_performance")
+              .update({
+                total_questions: newTotal,
+                avg_score: newAvg,
+                last_practiced_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", existingDomainPerf.id);
+          } else {
+            await supabase
+              .from("user_performance")
+              .insert({
+                user_id: user.id,
+                domain_id: resolvedDomainId,
+                total_questions: 1,
+                avg_score: finalScore,
+                last_practiced_at: new Date().toISOString(),
+              });
+          }
+        }
+
+        // Update topic performance
+        if (resolvedDomainId && resolvedTopicId) {
+          const { data: existingTopicPerf } = await supabase
+            .from("user_performance")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("domain_id", resolvedDomainId)
+            .eq("topic_id", resolvedTopicId)
+            .is("subtopic_id", null)
+            .single();
+
+          if (existingTopicPerf) {
+            const newTotal = existingTopicPerf.total_questions + 1;
+            const newAvg = ((existingTopicPerf.avg_score * existingTopicPerf.total_questions) + finalScore) / newTotal;
+            
+            await supabase
+              .from("user_performance")
+              .update({
+                total_questions: newTotal,
+                avg_score: newAvg,
+                last_practiced_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", existingTopicPerf.id);
+          } else {
+            await supabase
+              .from("user_performance")
+              .insert({
+                user_id: user.id,
+                domain_id: resolvedDomainId,
+                topic_id: resolvedTopicId,
+                total_questions: 1,
+                avg_score: finalScore,
+                last_practiced_at: new Date().toISOString(),
+              });
+          }
+        }
+
+        setSaved(true);
+      } catch (error) {
+        console.error("Error saving evaluation results:", error);
+      } finally {
+        setSaving(false);
+      }
+    };
+
+    saveResults();
+  }, [aiEvaluation, state, finalScore, saved, saving]);
 
   const radarData = Object.entries(rubric).map(([key, val]) => ({
     subject: rubricLabels[key] || key,
@@ -55,7 +183,6 @@ export default function EvaluationPage() {
     lost: 10 - (val as number),
   }));
 
-  const finalScore = aiEvaluation?.finalScore ?? evaluation.finalScore ?? 0;
   const scoreColor = finalScore >= 7 ? "text-accent" : finalScore >= 5 ? "text-warning" : "text-destructive";
   const hiringProb = aiEvaluation?.hiringProbability ?? Math.round(finalScore * 10);
 
@@ -69,7 +196,11 @@ export default function EvaluationPage() {
       </Link>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-[28px] font-semibold mb-1">Evaluation Results</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-[28px] font-semibold mb-1">Evaluation Results</h1>
+          {saving && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+          {saved && <span className="text-xs text-accent">✓ Saved</span>}
+        </div>
         <p className="text-sm text-muted-foreground">{state?.domain || questionTitle} — {state?.topic || questionSubtopic}</p>
       </motion.div>
 
