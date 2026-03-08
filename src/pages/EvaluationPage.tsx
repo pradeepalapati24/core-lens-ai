@@ -42,6 +42,12 @@ export default function EvaluationPage() {
     interviewReadiness: aiEvaluation.interviewReadinessScore || 0,
   } : null;
 
+  const copyPasteDetected = aiEvaluation?.copyPasteDetected === true;
+  const copyPasteConfidence = aiEvaluation?.copyPasteConfidence || 0;
+  const copyPasteReason = aiEvaluation?.copyPasteReason || "";
+  const pasteMetrics = state?.pasteMetrics;
+  const hasPasteFlag = copyPasteDetected || (pasteMetrics?.pasteRatio > 0.7);
+
   const rubric = aiEvaluation?.scores || {};
   const finalScore = aiEvaluation?.finalScore ?? 0;
 
