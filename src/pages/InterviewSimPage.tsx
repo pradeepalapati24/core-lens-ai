@@ -38,19 +38,9 @@ export default function InterviewSimPage() {
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  if (!meta) {
-    return (
-      <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">No interview session configured.</p>
-          <Button onClick={() => navigate("/practice")}>Go to Practice</Button>
-        </div>
-      </div>
-    );
-  }
 
   useEffect(() => {
-    generateQuestion();
+    if (meta) generateQuestion();
   }, []);
 
   useEffect(() => {
