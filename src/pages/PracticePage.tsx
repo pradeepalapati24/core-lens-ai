@@ -33,6 +33,7 @@ export default function PracticePage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<"all" | "software" | "core">("all");
   const [includeCode, setIncludeCode] = useState<boolean>(incomingState?.includeCode ?? true);
+  const [practiceMode, setPracticeMode] = useState<"regular" | "interview">("regular");
 
   const { data: topics = [], isLoading: topicsLoading } = useTopics(selectedDomain?.id || null);
   const { data: subtopics = [], isLoading: subtopicsLoading } = useSubtopics(selectedTopic?.id || null);
