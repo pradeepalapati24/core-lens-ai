@@ -70,7 +70,8 @@ export default function PracticePage() {
   const handleStart = () => {
     if (!selectedDomain || !selectedTopic || !selectedSubtopic || !selectedDifficulty) return;
     
-    navigate("/workspace", {
+    const targetRoute = practiceMode === "interview" ? "/interview" : "/workspace";
+    navigate(targetRoute, {
       state: {
         domainId: selectedDomain.id,
         topicId: selectedTopic.id,
