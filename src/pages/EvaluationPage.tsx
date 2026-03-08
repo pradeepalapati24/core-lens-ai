@@ -171,6 +171,19 @@ export default function EvaluationPage() {
     saveResults();
   }, [aiEvaluation, state, finalScore, saved, saving]);
 
+  // If no AI evaluation data, show empty state
+  if (!aiEvaluation || !evaluation) {
+    return (
+      <div className="p-8 text-center max-w-md mx-auto mt-20">
+        <h1 className="text-xl font-semibold mb-2">No Evaluation Data</h1>
+        <p className="text-sm text-muted-foreground mb-6">Complete a practice question to see your evaluation results.</p>
+        <Link to="/practice">
+          <Button>Start Practicing</Button>
+        </Link>
+      </div>
+    );
+  }
+
   const radarData = Object.entries(rubric).map(([key, val]) => ({
     subject: rubricLabels[key] || key,
     score: val as number,
