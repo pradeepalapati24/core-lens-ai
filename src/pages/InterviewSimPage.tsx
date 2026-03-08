@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText, Clock, AlertTriangle } from "lucide-react";
+import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText, Clock, AlertTriangle, Clipboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 
