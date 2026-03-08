@@ -107,7 +107,7 @@ export default function DashboardPage() {
       {/* Metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { icon: Target, label: "Interview Readiness", value: interviewReadiness, sub: "out of 10", color: "text-primary" },
+          { icon: Target, label: "Interview Readiness", value: interviewReadiness.toString(), sub: "out of 100", color: "text-primary" },
           { icon: Percent, label: "Hiring Probability", value: `${hiringProbability}%`, sub: "based on rubric", color: "text-success" },
           { icon: Code2, label: "Questions Solved", value: totalSolved.toString(), sub: "total", color: "text-foreground" },
           { icon: Flame, label: "Current Streak", value: currentStreak.toString(), sub: "consecutive days", color: "text-warning" },
