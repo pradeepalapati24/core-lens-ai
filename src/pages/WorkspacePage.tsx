@@ -38,8 +38,33 @@ export default function WorkspacePage() {
   const [language, setLanguage] = useState("javascript");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evaluationStep, setEvaluationStep] = useState("");
-  const [currentStep, setCurrentStep] = useState<1 | 2>(1); // Step 1: Code, Step 2: Explanation
+  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const recognitionRef = useRef<any>(null);
+
+  // Copy-paste detection state
+  const [pasteCount, setPasteCount] = useState(0);
+  const [pastedChars, setPastedChars] = useState(0);
+  const [typedChars, setTypedChars] = useState(0);
+  const [showPasteWarning, setShowPasteWarning] = useState(false);
+
+  const handleExplanationPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = e.clipboardData.getData("text");
+    setPasteCount(prev => prev + 1);
+    setPastedChars(prev => prev + pastedText.length);
+    if (pastedText.length > 50) {
+      setShowPasteWarning(true);
+      setTimeout(() => setShowPasteWarning(false), 4000);
+    }
+  };
+
+  const handleExplanationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    // Only count as typed if length grew by 1-2 chars (normal typing)
+    if (newVal.length > explanation.length && newVal.length - explanation.length <= 2) {
+      setTypedChars(prev => prev + (newVal.length - explanation.length));
+    }
+    setExplanation(newVal);
+  };
 
   useEffect(() => {
     generateQuestion();
