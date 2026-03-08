@@ -109,32 +109,30 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-2">
-        {/* User section */}
         <NavLink
           to="/profile"
           className={`flex items-center gap-2.5 px-2 py-2 rounded-lg transition-all duration-150 ${
             currentPath === "/profile"
-              ? "bg-sidebar-primary text-sidebar-primary-foreground"
-              : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+              ? "!bg-sidebar-primary !text-white"
+              : "!text-white/70 hover:!text-white hover:!bg-white/10"
           }`}
           activeClassName=""
         >
-          <div className="w-7 h-7 rounded-lg bg-sidebar-primary/20 flex items-center justify-center shrink-0 text-[10px] font-bold text-sidebar-primary">
+          <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center shrink-0 text-[10px] font-bold text-white">
             {initials}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <div className="text-xs font-medium truncate">{displayName || "Profile"}</div>
-              <div className="text-[10px] opacity-50 truncate">{userEmail}</div>
+              <div className="text-[10px] text-white/40 truncate">{userEmail}</div>
             </div>
           )}
         </NavLink>
 
-        {/* Sign out */}
         {!collapsed && (
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2.5 px-2 py-2 rounded-lg text-sidebar-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all duration-150 w-full text-[12px]"
+            className="flex items-center gap-2.5 px-2 py-2 rounded-lg !text-white/35 hover:!text-red-400 hover:!bg-red-500/10 transition-all duration-150 w-full text-[12px]"
           >
             <LogOut className="h-3.5 w-3.5 shrink-0" />
             <span>Sign out</span>
