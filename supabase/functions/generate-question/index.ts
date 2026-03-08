@@ -27,13 +27,73 @@ serve(async (req) => {
   }
 
   try {
-    const { domain, topic, subtopic, difficulty, domainId, topicId, subtopicId } = await req.json();
+    const { domain, topic, subtopic, difficulty, domainId, topicId, subtopicId, userId } = await req.json();
     
     if (!domain || !topic || !subtopic || !difficulty) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: domain, topic, subtopic, difficulty" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Try to serve a stored question first
+    if (domainId && topicId && subtopicId) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+        // Get IDs of questions the user has already solved
+        let solvedIds: string[] = [];
+        if (userId) {
+          const { data: solved } = await supabaseAdmin
+            .from("user_solved_questions")
+            .select("question_id")
+            .eq("user_id", userId);
+          solvedIds = (solved || []).map((s: any) => s.question_id);
+        }
+
+        // Query for an existing question matching criteria that user hasn't solved
+        let query = supabaseAdmin
+          .from("questions")
+          .select("*")
+          .eq("domain_id", domainId)
+          .eq("topic_id", topicId)
+          .eq("subtopic_id", subtopicId)
+          .eq("difficulty", difficulty);
+
+        if (solvedIds.length > 0) {
+          query = query.not("id", "in", `(${solvedIds.join(",")})`);
+        }
+
+        const { data: existingQuestions } = await query.limit(10);
+
+        if (existingQuestions && existingQuestions.length > 0) {
+          // Pick a random one from available questions
+          const picked = existingQuestions[Math.floor(Math.random() * existingQuestions.length)];
+          const questionData = {
+            id: picked.id,
+            domain,
+            topic,
+            subtopic,
+            difficulty: picked.difficulty,
+            questionText: picked.question_text,
+            learningContext: picked.learning_context || "",
+            hints: picked.hints || [],
+            expectedConcepts: picked.expected_concepts || [],
+            createdAt: picked.created_at,
+            fromStore: true,
+          };
+          console.log("Served stored question:", picked.id);
+          return new Response(
+            JSON.stringify(questionData),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        console.log("No unsolved stored questions found, generating new one");
+      } catch (dbErr) {
+        console.error("DB lookup failed, falling back to AI generation:", dbErr);
+      }
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
