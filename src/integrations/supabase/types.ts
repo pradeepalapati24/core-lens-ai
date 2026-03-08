@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      domains: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["domain_type"]
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          type: Database["public"]["Enums"]["domain_type"]
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["domain_type"]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -44,6 +71,221 @@ export type Database = {
         }
         Relationships: []
       }
+      questions: {
+        Row: {
+          created_at: string | null
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
+          domain_id: string
+          expected_concepts: string[] | null
+          hints: string[] | null
+          id: string
+          learning_context: string | null
+          question_text: string
+          subtopic_id: string
+          topic_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
+          domain_id: string
+          expected_concepts?: string[] | null
+          hints?: string[] | null
+          id?: string
+          learning_context?: string | null
+          question_text: string
+          subtopic_id: string
+          topic_id: string
+        }
+        Update: {
+          created_at?: string | null
+          difficulty?: Database["public"]["Enums"]["difficulty_level"]
+          domain_id?: string
+          expected_concepts?: string[] | null
+          hints?: string[] | null
+          id?: string
+          learning_context?: string | null
+          question_text?: string
+          subtopic_id?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_subtopic_id_fkey"
+            columns: ["subtopic_id"]
+            isOneToOne: false
+            referencedRelation: "subtopics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subtopics: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          topic_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          topic_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subtopics_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topics: {
+        Row: {
+          created_at: string | null
+          domain_id: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain_id: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          domain_id?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topics_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_performance: {
+        Row: {
+          avg_score: number | null
+          correct_questions: number | null
+          created_at: string | null
+          domain_id: string | null
+          id: string
+          last_practiced_at: string | null
+          subtopic_id: string | null
+          topic_id: string | null
+          total_questions: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_score?: number | null
+          correct_questions?: number | null
+          created_at?: string | null
+          domain_id?: string | null
+          id?: string
+          last_practiced_at?: string | null
+          subtopic_id?: string | null
+          topic_id?: string | null
+          total_questions?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_score?: number | null
+          correct_questions?: number | null
+          created_at?: string | null
+          domain_id?: string | null
+          id?: string
+          last_practiced_at?: string | null
+          subtopic_id?: string | null
+          topic_id?: string | null
+          total_questions?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_performance_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_performance_subtopic_id_fkey"
+            columns: ["subtopic_id"]
+            isOneToOne: false
+            referencedRelation: "subtopics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_performance_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_solved_questions: {
+        Row: {
+          id: string
+          question_id: string
+          score: number | null
+          solved_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          question_id: string
+          score?: number | null
+          solved_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          question_id?: string
+          score?: number | null
+          solved_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_solved_questions_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -52,7 +294,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      difficulty_level: "beginner" | "intermediate" | "advanced"
+      domain_type: "core" | "software"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -179,6 +422,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      difficulty_level: ["beginner", "intermediate", "advanced"],
+      domain_type: ["core", "software"],
+    },
   },
 } as const
