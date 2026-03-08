@@ -100,15 +100,23 @@ export function useTopicPerformance(userId: string | null, domainId?: string) {
   });
 }
 
-export function getStrongWeakAreas(performance: DomainPerformance[] | TopicPerformance[]) {
+export function getStrongWeakDomains(performance: DomainPerformance[]) {
   if (!performance.length) return { strong: [], weak: [], recommendations: [] };
   
   const sorted = [...performance].sort((a, b) => b.avg_score - a.avg_score);
   const strong = sorted.filter(p => p.avg_score >= 7);
   const weak = sorted.filter(p => p.avg_score < 6 && p.total_questions > 0);
-  
-  // Recommendations: weak areas + unpracticed areas
   const recommendations = weak.slice(0, 5);
   
   return { strong, weak, recommendations };
+}
+
+export function getStrongWeakTopics(performance: TopicPerformance[]) {
+  if (!performance.length) return { strong: [], weak: [] };
+  
+  const sorted = [...performance].sort((a, b) => b.avg_score - a.avg_score);
+  const strong = sorted.filter(p => p.avg_score >= 7);
+  const weak = sorted.filter(p => p.avg_score < 6 && p.total_questions > 0);
+  
+  return { strong, weak };
 }
