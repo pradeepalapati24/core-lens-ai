@@ -115,4 +115,28 @@ export const domains: Domain[] = [
       { id: "filtering", name: "Filtering", subtopics: [{ id: "low-pass", name: "Low Pass Filter" }, { id: "high-pass", name: "High Pass Filter" }] },
     ],
   },
+  {
+    id: "vlsi",
+    name: "VLSI Design",
+    category: "core",
+    icon: "🔬",
+    description: "CMOS, Layout Design, Verification",
+    topics: [
+      { id: "cmos", name: "CMOS Technology", subtopics: [{ id: "cmos-logic", name: "CMOS Logic" }, { id: "cmos-inverter", name: "CMOS Inverter" }] },
+      { id: "layout", name: "Physical Design", subtopics: [{ id: "floorplanning", name: "Floorplanning" }, { id: "routing", name: "Routing" }] },
+      { id: "verification", name: "Verification", subtopics: [{ id: "timing-analysis", name: "Timing Analysis" }, { id: "drc-lvs", name: "DRC & LVS" }] },
+    ],
+  },
+  {
+    id: "iot",
+    name: "Internet of Things",
+    category: "core",
+    icon: "📶",
+    description: "Sensors, Protocols, Edge Computing",
+    topics: [
+      { id: "sensors", name: "Sensors & Actuators", subtopics: [{ id: "temp-sensors", name: "Temperature Sensors" }, { id: "motion-sensors", name: "Motion Sensors" }] },
+      { id: "iot-protocols", name: "IoT Protocols", subtopics: [{ id: "mqtt", name: "MQTT" }, { id: "coap", name: "CoAP" }, { id: "lorawan", name: "LoRaWAN" }] },
+      { id: "edge-computing", name: "Edge Computing", subtopics: [{ id: "fog-computing", name: "Fog Computing" }, { id: "edge-ai", name: "Edge AI" }] },
+    ],
+  },
 ];

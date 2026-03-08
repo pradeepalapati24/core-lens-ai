@@ -8,6 +8,7 @@ import { AppSidebar } from "./components/AppSidebar";
 import TopBar from "./components/TopBar";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
+import DomainsPage from "./pages/DomainsPage";
 import PracticePage from "./pages/PracticePage";
 import WorkspacePage from "./pages/WorkspacePage";
 import EvaluationPage from "./pages/EvaluationPage";
@@ -31,6 +32,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/domains" element={<DomainsPage />} />
                   <Route path="/practice" element={<PracticePage />} />
                   <Route path="/workspace" element={<WorkspacePage />} />
                   <Route path="/evaluation" element={<EvaluationPage />} />
