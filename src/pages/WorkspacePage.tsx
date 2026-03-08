@@ -521,6 +521,11 @@ export default function WorkspacePage() {
                         </span>
                       </motion.div>
                     )}
+                    {isLowReasoning && !showPasteWarning && (
+                      <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs bg-warning/10 border-warning/20 text-warning">
+                        <span>⚠ Your response appears to lack reasoning depth. Try explaining your thinking step-by-step.</span>
+                      </motion.div>
+                    )}
                     <button
                       onClick={toggleRecording}
                       className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
