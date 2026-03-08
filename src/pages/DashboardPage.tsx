@@ -159,11 +159,11 @@ export default function DashboardPage() {
                       className="h-full rounded transition-all duration-500"
                       style={{
                         width: `${d.avg_score * 10}%`,
-                        backgroundColor: d.avg_score < 6 ? "hsl(var(--destructive))" : d.avg_score < 7.5 ? "hsl(var(--warning))" : "hsl(var(--success))",
+                        backgroundColor: d.avg_score * 10 < 60 ? "hsl(var(--destructive))" : d.avg_score * 10 < 75 ? "hsl(var(--warning))" : "hsl(var(--success))",
                       }}
                     />
                   </div>
-                  <span className="font-mono text-xs w-8 text-right text-muted-foreground">{d.avg_score.toFixed(1)}</span>
+                  <span className="font-mono text-xs w-8 text-right text-muted-foreground">{Math.round(d.avg_score * 10)}</span>
                 </div>
               ))}
             </div>
