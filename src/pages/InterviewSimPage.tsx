@@ -19,17 +19,6 @@ export default function InterviewSimPage() {
   const { toast } = useToast();
   const meta = location.state as any;
 
-  if (!meta) {
-    return (
-      <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">No interview session configured.</p>
-          <Button onClick={() => navigate("/practice")}>Go to Practice</Button>
-        </div>
-      </div>
-    );
-  }
-
   const includeCode = meta?.includeCode !== false;
   const totalTime = TIMER_DURATIONS[meta?.difficulty || "intermediate"] || 25 * 60;
 
@@ -48,6 +37,17 @@ export default function InterviewSimPage() {
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  if (!meta) {
+    return (
+      <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">No interview session configured.</p>
+          <Button onClick={() => navigate("/practice")}>Go to Practice</Button>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     generateQuestion();
