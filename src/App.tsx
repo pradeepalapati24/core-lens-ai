@@ -13,6 +13,8 @@ import PracticePage from "./pages/PracticePage";
 import WorkspacePage from "./pages/WorkspacePage";
 import EvaluationPage from "./pages/EvaluationPage";
 import ProfilePage from "./pages/ProfilePage";
+import AuthPage from "./pages/AuthPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,10 +22,20 @@ const queryClient = new QueryClient();
 function AppLayout() {
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
+  const isAuthPage = location.pathname === "/auth";
+  const isResetPage = location.pathname === "/reset-password";
 
-  // Landing page has its own full-width layout without sidebar
+  // Landing page and auth pages have their own full-width layout without sidebar
   if (isLandingPage) {
     return <LandingPage />;
+  }
+
+  if (isAuthPage) {
+    return <AuthPage />;
+  }
+
+  if (isResetPage) {
+    return <ResetPasswordPage />;
   }
 
   return (
