@@ -158,7 +158,7 @@ export default function DashboardPage() {
                       className="h-full rounded transition-all duration-500"
                       style={{
                         width: `${d.avg_score * 10}%`,
-                        backgroundColor: d.avg_score < 6 ? "hsl(var(--destructive))" : d.avg_score < 7.5 ? "hsl(var(--warning))" : "hsl(var(--accent))",
+                        backgroundColor: d.avg_score < 6 ? "hsl(var(--destructive))" : d.avg_score < 7.5 ? "hsl(var(--warning))" : "hsl(var(--success))",
                       }}
                     />
                   </div>
