@@ -108,6 +108,13 @@ export default function InterviewSimPage() {
     setCurrentStep(1);
     setTimeLeft(totalTime);
     setIsRunning(false);
+
+    let userId: string | null = null;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      userId = user?.id || null;
+    } catch {}
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-question`,
@@ -125,6 +132,7 @@ export default function InterviewSimPage() {
             domainId: meta?.domainId,
             topicId: meta?.topicId,
             subtopicId: meta?.subtopicId,
+            userId,
           }),
         }
       );
