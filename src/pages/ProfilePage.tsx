@@ -202,11 +202,12 @@ export default function ProfilePage() {
           <h3 className="text-sm font-medium mb-4">Domain Progress</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {domainPerformance.map((d) => {
-              const level = getLevel(d.avg_score);
-              const { pointsNeeded: ptsNeeded, nextLevel: nxtLvl } = getPointsToNext(d.avg_score);
-              const nxtObj = getNextLevel(d.avg_score);
+              const domainScore100 = d.avg_score * 10;
+              const level = getLevel(domainScore100);
+              const { pointsNeeded: ptsNeeded, nextLevel: nxtLvl } = getPointsToNext(domainScore100);
+              const nxtObj = getNextLevel(domainScore100);
               const prog = nxtObj.maxScore > nxtObj.minScore
-                ? ((d.avg_score - nxtObj.minScore) / (nxtObj.maxScore - nxtObj.minScore)) * 100
+                ? ((domainScore100 - nxtObj.minScore) / (nxtObj.maxScore - nxtObj.minScore)) * 100
                 : 100;
 
               return (
@@ -219,7 +220,7 @@ export default function ProfilePage() {
                         <span className={`text-[10px] ml-2 font-semibold ${level.color}`}>{level.name}</span>
                       </div>
                     </div>
-                    <span className="font-mono text-sm font-bold">{d.avg_score.toFixed(1)}</span>
+                    <span className="font-mono text-sm font-bold">{Math.round(domainScore100)}</span>
                   </div>
                   <Progress value={prog} className="h-1.5 mb-1" />
                   <div className="flex justify-between">
