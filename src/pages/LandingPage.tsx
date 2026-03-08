@@ -12,11 +12,21 @@ const features = [
   { icon: Sparkles, title: "Skill Reports", description: "Export shareable proficiency summaries for resumes and LinkedIn." },
 ];
 
-const domains = [
-  { icon: "💻", name: "IT / Software", topics: "6 topics · 60+ subtopics" },
-  { icon: "⚡", name: "Core Electronics", topics: "6 topics · 40+ subtopics" },
-  { icon: "🌐", name: "IoT Systems", topics: "5 topics · 25+ subtopics" },
-  { icon: "🔬", name: "VLSI Design", topics: "5 topics · 25+ subtopics" },
+const domainGroups = [
+  {
+    category: "SOFTWARE ENGINEERING",
+    domains: [
+      { icon: "💻", name: "IT / Software Engineering", topics: "6 topics · 60+ subtopics" },
+    ],
+  },
+  {
+    category: "CORE ENGINEERING",
+    domains: [
+      { icon: "⚡", name: "Core Electronics", topics: "6 topics · 40+ subtopics" },
+      { icon: "🌐", name: "IoT Systems", topics: "5 topics · 25+ subtopics" },
+      { icon: "🔬", name: "VLSI Design", topics: "5 topics · 25+ subtopics" },
+    ],
+  },
 ];
 
 export default function LandingPage() {
