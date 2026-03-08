@@ -499,9 +499,17 @@ export default function WorkspacePage() {
                       autoFocus
                     />
                     {showPasteWarning && (
-                      <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-warning/10 border border-warning/20 text-xs text-warning">
+                      <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={`mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs ${
+                        pasteWarningLevel === "penalty" 
+                          ? "bg-destructive/10 border-destructive/20 text-destructive" 
+                          : "bg-warning/10 border-warning/20 text-warning"
+                      }`}>
                         <Clipboard className="w-3.5 h-3.5 shrink-0" />
-                        <span>Paste detected — AI evaluation will check for originality</span>
+                        <span>
+                          {pasteWarningLevel === "penalty" 
+                            ? `⛔ Multiple pastes detected (${pasteCount}x) — Negative points will be deducted from your score`
+                            : "⚠ Paste detected — AI evaluation will check for originality"}
+                        </span>
                       </motion.div>
                     )}
                     <button
