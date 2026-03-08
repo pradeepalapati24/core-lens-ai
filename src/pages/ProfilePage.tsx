@@ -262,7 +262,7 @@ export default function ProfilePage() {
                     <span className="text-sm font-medium">{t.topic_name}</span>
                     <span className="text-xs text-muted-foreground ml-2">{t.domain_name}</span>
                   </div>
-                  <span className="text-sm font-mono text-success">{t.avg_score.toFixed(1)}</span>
+                  <span className="text-sm font-mono text-success">{Math.round(t.avg_score * 10)}</span>
                 </div>
               ))}
             </div>
