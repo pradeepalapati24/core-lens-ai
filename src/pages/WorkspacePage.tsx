@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText } from "lucide-react";
+import { Mic, MicOff, Send, Lightbulb, ChevronDown, ChevronUp, BookOpen, Play, Loader2, RefreshCw, ArrowRight, ArrowLeft, Code2, FileText, Clipboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface GeneratedQuestion {
