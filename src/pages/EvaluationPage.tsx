@@ -184,19 +184,22 @@ export default function EvaluationPage() {
     );
   }
 
+  // Convert to /100 scale for display
+  const displayScore = finalScore * 10;
+  
   const radarData = Object.entries(rubric).map(([key, val]) => ({
     subject: rubricLabels[key] || key,
-    score: val as number,
-    fullMark: 10,
+    score: (val as number) * 10,
+    fullMark: 100,
   }));
 
   const barData = Object.entries(rubric).map(([key, val]) => ({
     name: rubricLabels[key] || key,
-    score: val as number,
-    lost: 10 - (val as number),
+    score: (val as number) * 10,
+    lost: 100 - ((val as number) * 10),
   }));
 
-  const scoreColor = finalScore >= 7 ? "text-success" : finalScore >= 5 ? "text-warning" : "text-destructive";
+  const scoreColor = displayScore >= 70 ? "text-success" : displayScore >= 50 ? "text-warning" : "text-destructive";
   const hiringProb = aiEvaluation?.hiringProbability ?? Math.round(finalScore * 10);
 
   const questionTitle = state?.question?.topic || "Evaluation";
