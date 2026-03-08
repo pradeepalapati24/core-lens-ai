@@ -187,6 +187,7 @@ export default function InterviewSimPage() {
           code: includeCode ? code : null, explanation, question, includeCode, evaluation,
           domain: question.domain, topic: question.topic,
           interviewMode: true, timeUsed: totalTime - timeLeft, totalTime,
+          pasteMetrics: { pasteCount, pastedChars, typedChars, totalChars: explanation.length, pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0 },
         },
       });
     } catch {
