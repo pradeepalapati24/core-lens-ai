@@ -89,6 +89,9 @@ export default function WorkspacePage() {
             topic: meta?.topic || "Trees",
             subtopic: meta?.subtopic || "Binary Search Tree",
             difficulty: meta?.difficulty || "intermediate",
+            domainId: meta?.domainId,
+            topicId: meta?.topicId,
+            subtopicId: meta?.subtopicId,
           }),
         }
       );

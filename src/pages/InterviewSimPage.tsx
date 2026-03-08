@@ -90,6 +90,9 @@ export default function InterviewSimPage() {
             topic: meta?.topic,
             subtopic: meta?.subtopic,
             difficulty: meta?.difficulty || "intermediate",
+            domainId: meta?.domainId,
+            topicId: meta?.topicId,
+            subtopicId: meta?.subtopicId,
           }),
         }
       );
