@@ -165,6 +165,17 @@ export default function InterviewSimPage() {
   const canProceedToStep2 = includeCode ? code.trim().length > 20 : true;
   const canSubmit = question && explanation.trim().length > 10;
 
+  if (!meta) {
+    return (
+      <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">No interview session configured.</p>
+          <Button onClick={() => navigate("/practice")}>Go to Practice</Button>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoadingQuestion) {
     return (
       <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
