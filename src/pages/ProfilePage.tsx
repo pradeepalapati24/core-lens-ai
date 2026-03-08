@@ -221,23 +221,33 @@ export default function ProfilePage() {
           <Lightbulb className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-medium">Recommended Topics to Practice</h3>
         </div>
-        {weakDomains.length === 0 && weakTopics.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Start practicing to get personalized recommendations!</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {[...weakDomains.slice(0, 2), ...weakTopics.slice(0, 3)].map((item: any, i) => (
-              <div key={`rec-${i}`} className="p-4 rounded-lg border border-primary/20 bg-primary/5">
-                <div className="flex items-center gap-2 mb-1">
-                  {item.domain_icon && <span className="text-lg">{item.domain_icon}</span>}
-                  <span className="text-sm font-medium">{item.domain_name || item.topic_name}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Current score: {item.avg_score.toFixed(1)} · {item.total_questions} questions
-                </p>
+      {weakDomains.length === 0 && weakTopics.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Start practicing to get personalized recommendations!</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {weakDomains.slice(0, 3).map((d) => (
+            <div key={d.id} className="p-4 rounded-lg border border-primary/20 bg-primary/5">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-lg">{d.domain_icon}</span>
+                <span className="text-sm font-medium">{d.domain_name}</span>
               </div>
-            ))}
-          </div>
-        )}
+              <p className="text-xs text-muted-foreground">
+                Current score: {d.avg_score.toFixed(1)} · {d.total_questions} questions
+              </p>
+            </div>
+          ))}
+          {weakTopics.slice(0, 2).map((t: any) => (
+            <div key={t.id} className="p-4 rounded-lg border border-primary/20 bg-primary/5">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium">{t.topic_name}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t.domain_name} · Score: {t.avg_score.toFixed(1)}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
       </motion.div>
 
       {/* Charts */}
