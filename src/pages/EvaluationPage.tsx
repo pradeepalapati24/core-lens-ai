@@ -47,6 +47,8 @@ export default function EvaluationPage() {
   const copyPasteReason = aiEvaluation?.copyPasteReason || "";
   const pasteMetrics = state?.pasteMetrics;
   const hasPasteFlag = copyPasteDetected || (pasteMetrics?.pasteRatio > 0.7);
+  const hasMultiplePastes = (pasteMetrics?.pasteCount || 0) >= 2;
+  const negativePenalty = hasMultiplePastes ? Math.min((pasteMetrics?.pasteCount || 0) * 15, 50) : 0;
 
   const rubric = aiEvaluation?.scores || {};
   const finalScore = aiEvaluation?.finalScore ?? 0;
