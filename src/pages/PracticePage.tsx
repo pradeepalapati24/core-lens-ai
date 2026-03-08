@@ -15,7 +15,7 @@ import {
 type Difficulty = "beginner" | "intermediate" | "advanced";
 
 const difficultyConfig: { value: Difficulty; label: string; icon: any; color: string; bgColor: string }[] = [
-  { value: "beginner", label: "Beginner", icon: Zap, color: "text-accent", bgColor: "bg-accent/10" },
+  { value: "beginner", label: "Beginner", icon: Zap, color: "text-success", bgColor: "bg-success/10" },
   { value: "intermediate", label: "Intermediate", icon: Signal, color: "text-warning", bgColor: "bg-warning/10" },
   { value: "advanced", label: "Advanced", icon: Gauge, color: "text-destructive", bgColor: "bg-destructive/10" },
 ];
