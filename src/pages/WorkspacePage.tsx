@@ -46,20 +46,29 @@ export default function WorkspacePage() {
   const [pastedChars, setPastedChars] = useState(0);
   const [typedChars, setTypedChars] = useState(0);
   const [showPasteWarning, setShowPasteWarning] = useState(false);
+  const [pasteWarningLevel, setPasteWarningLevel] = useState<"none" | "warning" | "penalty">("none");
 
   const handleExplanationPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = e.clipboardData.getData("text");
-    setPasteCount(prev => prev + 1);
+    const newPasteCount = pasteCount + 1;
+    setPasteCount(newPasteCount);
     setPastedChars(prev => prev + pastedText.length);
-    if (pastedText.length > 50) {
+    
+    if (newPasteCount === 1 && pastedText.length > 50) {
+      // First paste: show ⚠ warning
+      setPasteWarningLevel("warning");
       setShowPasteWarning(true);
-      setTimeout(() => setShowPasteWarning(false), 4000);
+      setTimeout(() => setShowPasteWarning(false), 5000);
+    } else if (newPasteCount >= 2) {
+      // 2+ pastes: show penalty warning
+      setPasteWarningLevel("penalty");
+      setShowPasteWarning(true);
+      setTimeout(() => setShowPasteWarning(false), 6000);
     }
   };
 
   const handleExplanationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newVal = e.target.value;
-    // Only count as typed if length grew by 1-2 chars (normal typing)
     if (newVal.length > explanation.length && newVal.length - explanation.length <= 2) {
       setTypedChars(prev => prev + (newVal.length - explanation.length));
     }
