@@ -1,216 +1,338 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { domains } from "@/lib/domains";
-import { Domain, Topic, Subtopic, Difficulty } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Zap, Signal, Gauge } from "lucide-react";
+import { ArrowLeft, ArrowRight, Zap, Signal, Gauge, Loader2 } from "lucide-react";
+import { useDomains, useTopics, useSubtopics, DbDomain, DbTopic, DbSubtopic } from "@/hooks/useDomains";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const difficultyConfig: { value: Difficulty; label: string; icon: any; color: string }[] = [
-  { value: "beginner", label: "Beginner", icon: Zap, color: "text-accent" },
-  { value: "intermediate", label: "Intermediate", icon: Signal, color: "text-warning" },
-  { value: "advanced", label: "Advanced", icon: Gauge, color: "text-destructive" },
+type Difficulty = "beginner" | "intermediate" | "advanced";
+
+const difficultyConfig: { value: Difficulty; label: string; icon: any; color: string; bgColor: string }[] = [
+  { value: "beginner", label: "Beginner", icon: Zap, color: "text-accent", bgColor: "bg-accent/10" },
+  { value: "intermediate", label: "Intermediate", icon: Signal, color: "text-warning", bgColor: "bg-warning/10" },
+  { value: "advanced", label: "Advanced", icon: Gauge, color: "text-destructive", bgColor: "bg-destructive/10" },
 ];
 
 export default function PracticePage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const incomingState = location.state as { selectedDomain?: Domain; includeCode?: boolean } | null;
+  const incomingState = location.state as { selectedDomainId?: string; includeCode?: boolean } | null;
 
-  // If coming from DomainsPage with a pre-selected domain, start at step 1 (Topic selection)
-  const [step, setStep] = useState(incomingState?.selectedDomain ? 1 : 0);
-  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(incomingState?.selectedDomain || null);
-  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
-  const [selectedSubtopic, setSelectedSubtopic] = useState<Subtopic | null>(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<"all" | "it" | "core">("all");
+  const { data: domains = [], isLoading: domainsLoading } = useDomains();
   
-  // Track if code should be included (from DomainsPage modal or default based on domain category)
+  const [selectedDomain, setSelectedDomain] = useState<DbDomain | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<DbTopic | null>(null);
+  const [selectedSubtopic, setSelectedSubtopic] = useState<DbSubtopic | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<"all" | "software" | "core">("all");
   const [includeCode, setIncludeCode] = useState<boolean>(incomingState?.includeCode ?? true);
 
-  // Update includeCode when domain changes (for direct practice page usage)
-  useEffect(() => {
-    if (selectedDomain && !incomingState?.selectedDomain) {
-      // If user selected domain directly on practice page, Core domains default to no code
-      setIncludeCode(selectedDomain.category === "it");
-    }
-  }, [selectedDomain, incomingState]);
+  const { data: topics = [], isLoading: topicsLoading } = useTopics(selectedDomain?.id || null);
+  const { data: subtopics = [], isLoading: subtopicsLoading } = useSubtopics(selectedTopic?.id || null);
 
-  const filteredDomains = categoryFilter === "all" ? domains : domains.filter((d) => d.category === categoryFilter);
+  // Set initial domain from incoming state
+  useEffect(() => {
+    if (incomingState?.selectedDomainId && domains.length > 0) {
+      const domain = domains.find(d => d.id === incomingState.selectedDomainId);
+      if (domain) setSelectedDomain(domain);
+    }
+  }, [incomingState?.selectedDomainId, domains]);
+
+  // Update includeCode when domain changes
+  useEffect(() => {
+    if (selectedDomain) {
+      setIncludeCode(selectedDomain.type === "software");
+    }
+  }, [selectedDomain]);
+
+  // Reset dependent selections when parent changes
+  useEffect(() => {
+    setSelectedTopic(null);
+    setSelectedSubtopic(null);
+  }, [selectedDomain]);
+
+  useEffect(() => {
+    setSelectedSubtopic(null);
+  }, [selectedTopic]);
+
+  const filteredDomains = categoryFilter === "all" 
+    ? domains 
+    : domains.filter((d) => d.type === categoryFilter);
 
   const handleStart = () => {
+    if (!selectedDomain || !selectedTopic || !selectedSubtopic || !selectedDifficulty) return;
+    
     navigate("/workspace", {
       state: {
-        domain: selectedDomain?.name,
-        topic: selectedTopic?.name,
-        subtopic: selectedSubtopic?.name,
+        domainId: selectedDomain.id,
+        topicId: selectedTopic.id,
+        subtopicId: selectedSubtopic.id,
+        domain: selectedDomain.name,
+        topic: selectedTopic.name,
+        subtopic: selectedSubtopic.name,
         difficulty: selectedDifficulty,
         includeCode,
       },
     });
   };
 
-  const handleDomainSelect = (d: Domain) => {
-    setSelectedDomain(d);
-    // Default: IT domains include code, Core domains don't
-    setIncludeCode(d.category === "it");
-    setStep(1);
-  };
+  const canStart = selectedDomain && selectedTopic && selectedSubtopic && selectedDifficulty;
 
-  const steps = [
-    // Step 0: Domain
-    <div key="domain">
-      <div className="flex gap-2 mb-6">
-        {(["all", "it", "core"] as const).map((c) => (
-          <button
-            key={c}
-            onClick={() => setCategoryFilter(c)}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${categoryFilter === c ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            {c === "all" ? "All" : c === "it" ? "IT / Software" : "Core / Hardware"}
-          </button>
-        ))}
+  if (domainsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredDomains.map((d) => (
-          <button
-            key={d.id}
-            onClick={() => handleDomainSelect(d)}
-            className={`card-hover text-left p-[18px] ${selectedDomain?.id === d.id ? "border-primary/30" : ""}`}
-          >
-            <div className="text-xl mb-1.5">{d.icon}</div>
-            <div className="font-medium text-sm">{d.name}</div>
-            <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{d.description}</div>
-            <div className="mt-2 text-[11px] text-muted-foreground">{d.topics.length} topics · {d.topics.reduce((a, t) => a + t.subtopics.length, 0)} subtopics</div>
-          </button>
-        ))}
-      </div>
-    </div>,
-
-    // Step 1: Topic
-    <div key="topic">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {selectedDomain?.topics.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => { setSelectedTopic(t); setStep(2); }}
-            className={`card-hover text-left p-[18px] ${selectedTopic?.id === t.id ? "border-primary/30" : ""}`}
-          >
-            <div className="font-medium text-sm">{t.name}</div>
-            <div className="text-xs text-muted-foreground mt-0.5">{t.subtopics.length} subtopics</div>
-          </button>
-        ))}
-      </div>
-    </div>,
-
-    // Step 2: Subtopic
-    <div key="subtopic">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {selectedTopic?.subtopics.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => { setSelectedSubtopic(s); setStep(3); }}
-            className={`card-hover text-left p-[18px] ${selectedSubtopic?.id === s.id ? "border-primary/30" : ""}`}
-          >
-            <div className="font-medium text-sm">{s.name}</div>
-          </button>
-        ))}
-      </div>
-    </div>,
-
-    // Step 3: Difficulty
-    <div key="difficulty">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {difficultyConfig.map((d) => (
-          <button
-            key={d.value}
-            onClick={() => setSelectedDifficulty(d.value)}
-            className={`card-hover p-6 text-center ${selectedDifficulty === d.value ? "border-primary/30" : ""}`}
-          >
-            <d.icon className={`w-6 h-6 mx-auto mb-2 ${d.color}`} />
-            <div className="font-medium text-sm">{d.label}</div>
-          </button>
-        ))}
-      </div>
-      {selectedDifficulty && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 text-center">
-          <Button size="lg" className="h-10 px-8 text-sm font-medium" onClick={handleStart}>
-            Start Question <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-          </Button>
-        </motion.div>
-      )}
-    </div>,
-  ];
-
-  const stepLabels = ["Domain", "Topic", "Subtopic", "Difficulty"];
-  const stepTitles = [
-    "Select Domain",
-    `Select Topic`,
-    `Select Subtopic`,
-    `Select Difficulty`,
-  ];
-  const stepDescs = [
-    "Choose your engineering domain",
-    selectedDomain?.name || "",
-    `${selectedDomain?.name} → ${selectedTopic?.name}`,
-    `${selectedDomain?.name} → ${selectedTopic?.name} → ${selectedSubtopic?.name}`,
-  ];
+    );
+  }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      {/* Progress */}
-      <div className="flex items-center gap-2 mb-8">
-        {stepLabels.map((label, i) => (
-          <div key={label} className="flex items-center gap-2">
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-medium transition-colors ${i <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
-              {i + 1}
+    <div className="p-8 max-w-4xl mx-auto">
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-[28px] font-semibold mb-1">Start Practice</h1>
+        <p className="text-sm text-muted-foreground mb-8">Select your domain, topic, subtopic, and difficulty level</p>
+      </motion.div>
+
+      <div className="space-y-6">
+        {/* Domain Selection */}
+        <motion.div 
+          initial={{ opacity: 0, y: 8 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.05 }}
+          className="surface-elevated p-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium">Domain</h2>
+            <div className="flex gap-2">
+              {(["all", "software", "core"] as const).map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCategoryFilter(c)}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                    categoryFilter === c 
+                      ? "bg-primary/15 text-primary" 
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {c === "all" ? "All" : c === "software" ? "Software" : "Core"}
+                </button>
+              ))}
             </div>
-            <span className={`text-xs hidden sm:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-            {i < 3 && <div className={`w-6 h-px ${i < step ? "bg-primary/50" : "bg-border"}`} />}
           </div>
-        ))}
-      </div>
-
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <h1 className="text-[28px] font-semibold">{stepTitles[step]}</h1>
-          {selectedDomain && !includeCode && (
-            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent">
-              THEORY MODE
-            </span>
-          )}
-        </div>
-        <p className="text-sm text-muted-foreground">{stepDescs[step]}</p>
-      </div>
-
-      {step > 0 && (
-        <button 
-          onClick={() => {
-            if (step === 1 && incomingState?.selectedDomain) {
-              // Go back to domains page if came from there
-              navigate("/domains");
-            } else {
-              setStep(step - 1);
-            }
-          }} 
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-4 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" /> Back
-        </button>
-      )}
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={step}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}
-        >
-          {steps[step]}
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {filteredDomains.map((d) => (
+              <button
+                key={d.id}
+                onClick={() => setSelectedDomain(d)}
+                className={`text-left p-4 rounded-lg border transition-all hover:scale-[1.02] ${
+                  selectedDomain?.id === d.id 
+                    ? "border-primary bg-primary/5" 
+                    : "border-border hover:border-primary/30 bg-card"
+                }`}
+              >
+                <div className="text-xl mb-1">{d.icon}</div>
+                <div className="font-medium text-sm truncate">{d.name}</div>
+                <div className={`text-[10px] uppercase font-medium mt-1 ${
+                  d.type === "software" ? "text-primary" : "text-accent"
+                }`}>
+                  {d.type}
+                </div>
+              </button>
+            ))}
+          </div>
         </motion.div>
-      </AnimatePresence>
+
+        {/* Topic Selection */}
+        <AnimatePresence>
+          {selectedDomain && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: "auto" }} 
+              exit={{ opacity: 0, height: 0 }}
+              className="surface-elevated p-6"
+            >
+              <h2 className="text-sm font-medium mb-4">Topic</h2>
+              {topicsLoading ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Loading topics...</span>
+                </div>
+              ) : topics.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No topics available for this domain.</p>
+              ) : (
+                <Select 
+                  value={selectedTopic?.id || ""} 
+                  onValueChange={(id) => setSelectedTopic(topics.find(t => t.id === id) || null)}
+                >
+                  <SelectTrigger className="w-full max-w-md">
+                    <SelectValue placeholder="Select a topic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {topics.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Subtopic Selection */}
+        <AnimatePresence>
+          {selectedTopic && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: "auto" }} 
+              exit={{ opacity: 0, height: 0 }}
+              className="surface-elevated p-6"
+            >
+              <h2 className="text-sm font-medium mb-4">Subtopic</h2>
+              {subtopicsLoading ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Loading subtopics...</span>
+                </div>
+              ) : subtopics.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No subtopics available for this topic.</p>
+              ) : (
+                <Select 
+                  value={selectedSubtopic?.id || ""} 
+                  onValueChange={(id) => setSelectedSubtopic(subtopics.find(s => s.id === id) || null)}
+                >
+                  <SelectTrigger className="w-full max-w-md">
+                    <SelectValue placeholder="Select a subtopic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subtopics.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Difficulty Selection */}
+        <AnimatePresence>
+          {selectedSubtopic && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: "auto" }} 
+              exit={{ opacity: 0, height: 0 }}
+              className="surface-elevated p-6"
+            >
+              <h2 className="text-sm font-medium mb-4">Difficulty Level</h2>
+              <div className="grid grid-cols-3 gap-4">
+                {difficultyConfig.map((d) => (
+                  <button
+                    key={d.value}
+                    onClick={() => setSelectedDifficulty(d.value)}
+                    className={`p-4 rounded-lg border text-center transition-all hover:scale-[1.02] ${
+                      selectedDifficulty === d.value 
+                        ? `border-primary ${d.bgColor}` 
+                        : "border-border hover:border-primary/30 bg-card"
+                    }`}
+                  >
+                    <d.icon className={`w-5 h-5 mx-auto mb-2 ${d.color}`} />
+                    <div className="font-medium text-sm">{d.label}</div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Code Mode Toggle for Software Domains */}
+        {selectedDomain?.type === "software" && selectedSubtopic && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            className="surface-elevated p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-medium">Practice Mode</h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {includeCode ? "Code + Theory" : "Theory Only"}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIncludeCode(true)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    includeCode ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  With Code
+                </button>
+                <button
+                  onClick={() => setIncludeCode(false)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    !includeCode ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  Theory Only
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Start Button */}
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 0.2 }}
+          className="pt-4"
+        >
+          <Button 
+            size="lg" 
+            className="w-full h-12 text-sm font-medium" 
+            onClick={handleStart} 
+            disabled={!canStart}
+          >
+            Start Practice <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+          
+          {canStart && (
+            <div className="mt-4 p-4 rounded-lg bg-muted/30 border border-border">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">{selectedDomain?.name}</span>
+                {" → "}
+                <span className="font-medium text-foreground">{selectedTopic?.name}</span>
+                {" → "}
+                <span className="font-medium text-foreground">{selectedSubtopic?.name}</span>
+                {" · "}
+                <span className={`font-medium ${
+                  selectedDifficulty === "beginner" ? "text-accent" :
+                  selectedDifficulty === "intermediate" ? "text-warning" : "text-destructive"
+                }`}>
+                  {selectedDifficulty?.charAt(0).toUpperCase()}{selectedDifficulty?.slice(1)}
+                </span>
+                {selectedDomain?.type === "software" && (
+                  <span className="ml-2 text-primary">
+                    · {includeCode ? "Code + Theory" : "Theory Only"}
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+        </motion.div>
+      </div>
     </div>
   );
 }
