@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Cpu, LayoutDashboard, User, BookOpen, Layers, Swords, FileText, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { Cpu, LayoutDashboard, User, BookOpen, Layers, Swords, FileText, LogOut, ChevronLeft, ChevronRight, FolderKanban } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
