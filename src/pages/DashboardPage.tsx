@@ -315,6 +315,9 @@ export default function DashboardPage() {
         )}
       </motion.div>
 
+      {/* Streak & Badges Section */}
+      <StreakDisplay userId={userId} />
+
       {/* Challenge — Secondary collaborative feature */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="surface-elevated p-6">
         <div className="flex items-center justify-between">
