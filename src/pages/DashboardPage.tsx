@@ -52,7 +52,7 @@ export default function DashboardPage() {
   const avgScore = avgScoreRaw * 10;
   const interviewReadiness = Math.round(avgScore);
   const hiringProbability = Math.min(Math.round(avgScore), 100);
-  const currentStreak = solvedQuestions.length > 0 ? 1 : 0;
+  const currentStreak = streak?.current_streak || 0;
 
   // Thinking Clarity: derived from communication scores across domains
   const thinkingClarity = domainPerformance.length > 0
