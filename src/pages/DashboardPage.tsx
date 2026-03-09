@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const { data: domains = [] } = useDomains();
   const { data: domainPerformance = [] } = useDomainPerformance(userId);
   const { data: topicPerformance = [] } = useTopicPerformance(userId);
+  const { streak } = useStreak(userId);
 
   useEffect(() => {
     const fetchUser = async () => {
