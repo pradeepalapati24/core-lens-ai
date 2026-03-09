@@ -55,6 +55,45 @@ export type Database = {
           },
         ]
       }
+      badges: {
+        Row: {
+          category: string
+          color: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          category: string
+          color?: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          is_active?: boolean
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Update: {
+          category?: string
+          color?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           challenged_explanation: string | null
@@ -356,6 +395,30 @@ export type Database = {
           },
         ]
       }
+      streak_freezes: {
+        Row: {
+          days_protected: number
+          id: string
+          reason: string | null
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          days_protected?: number
+          id?: string
+          reason?: string | null
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          days_protected?: number
+          id?: string
+          reason?: string | null
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subtopics: {
         Row: {
           created_at: string | null
@@ -410,6 +473,38 @@ export type Database = {
             columns: ["domain_id"]
             isOneToOne: false
             referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          progress_value: number | null
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          progress_value?: number | null
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          progress_value?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
             referencedColumns: ["id"]
           },
         ]
@@ -509,6 +604,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_practice_date: string | null
+          longest_streak: number
+          streak_freeze_count: number
+          streak_start_date: string | null
+          total_practice_days: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_practice_date?: string | null
+          longest_streak?: number
+          streak_freeze_count?: number
+          streak_start_date?: string | null
+          total_practice_days?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_practice_date?: string | null
+          longest_streak?: number
+          streak_freeze_count?: number
+          streak_start_date?: string | null
+          total_practice_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
