@@ -18,6 +18,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import InterviewSimPage from "./pages/InterviewSimPage";
 import ChallengePage from "./pages/ChallengePage";
 import SkillReportPage from "./pages/SkillReportPage";
+import ProjectsPage from "./pages/ProjectsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
