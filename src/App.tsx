@@ -49,6 +49,7 @@ function AppLayout() {
               <Route path="/evaluation" element={<EvaluationPage />} />
               <Route path="/challenge" element={<ChallengePage />} />
               <Route path="/skill-report" element={<SkillReportPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
