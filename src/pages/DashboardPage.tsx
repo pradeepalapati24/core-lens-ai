@@ -8,9 +8,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useDomainPerformance, useTopicPerformance, getStrongWeakDomains } from "@/hooks/useUserPerformance";
 import { useDomains } from "@/hooks/useDomains";
+import { useStreak } from "@/hooks/useStreak";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import OnboardingFlow from "@/components/OnboardingFlow";
+import StreakDisplay from "@/components/StreakDisplay";
 
 export default function DashboardPage() {
   const [userId, setUserId] = useState<string | null>(null);
