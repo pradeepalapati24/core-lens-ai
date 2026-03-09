@@ -27,7 +27,12 @@ serve(async (req) => {
   }
 
   try {
-    const { domain, topic, subtopic, difficulty, domainId, topicId, subtopicId, userId } = await req.json();
+    const { domain, topic, subtopic, difficulty, domainId, topicId, subtopicId, userId, projectMode, projectName, projectDescription, projectTechStack } = await req.json();
+    
+    // Project mode: generate questions based on project details
+    if (projectMode && projectName) {
+      return await handleProjectQuestion({ projectName, projectDescription, projectTechStack, difficulty: difficulty || "intermediate", corsHeaders });
+    }
     
     if (!domain || !topic || !subtopic || !difficulty) {
       return new Response(
