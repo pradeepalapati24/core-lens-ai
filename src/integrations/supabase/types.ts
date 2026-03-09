@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_learning_insights: {
+        Row: {
+          created_at: string
+          domain_focus: string | null
+          id: string
+          insight_text: string
+          insight_type: string
+          is_active: boolean
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          domain_focus?: string | null
+          id?: string
+          insight_text: string
+          insight_type: string
+          is_active?: boolean
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          domain_focus?: string | null
+          id?: string
+          insight_text?: string
+          insight_type?: string
+          is_active?: boolean
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_learning_insights_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "interview_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenges: {
         Row: {
           challenged_explanation: string | null
@@ -119,6 +160,110 @@ export type Database = {
           type?: Database["public"]["Enums"]["domain_type"]
         }
         Relationships: []
+      }
+      follow_up_conversations: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          created_at: string
+          evaluation: Json | null
+          id: string
+          question: string
+          question_intent: string | null
+          reasoning_type: string
+          round_number: number
+          session_id: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          created_at?: string
+          evaluation?: Json | null
+          id?: string
+          question: string
+          question_intent?: string | null
+          reasoning_type: string
+          round_number: number
+          session_id: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          created_at?: string
+          evaluation?: Json | null
+          id?: string
+          question?: string
+          question_intent?: string | null
+          reasoning_type?: string
+          round_number?: number
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_conversations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "interview_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interview_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          initial_code: string | null
+          initial_evaluation: Json | null
+          initial_explanation: string | null
+          question_id: string
+          reasoning_depth_score: number | null
+          session_status: string
+          user_id: string
+          weakest_rubric: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          initial_code?: string | null
+          initial_evaluation?: Json | null
+          initial_explanation?: string | null
+          question_id: string
+          reasoning_depth_score?: number | null
+          session_status?: string
+          user_id: string
+          weakest_rubric?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          initial_code?: string | null
+          initial_evaluation?: Json | null
+          initial_explanation?: string | null
+          question_id?: string
+          reasoning_depth_score?: number | null
+          session_status?: string
+          user_id?: string
+          weakest_rubric?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_interview_sessions_question"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_sessions_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
