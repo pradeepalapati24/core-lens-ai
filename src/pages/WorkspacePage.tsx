@@ -100,7 +100,13 @@ export default function WorkspacePage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({
+          body: JSON.stringify(meta?.projectMode ? {
+            projectMode: true,
+            projectName: meta.projectName,
+            projectDescription: meta.projectDescription,
+            projectTechStack: meta.projectTechStack,
+            difficulty: meta.difficulty || "intermediate",
+          } : {
             domain: meta?.domain || "Data Structures",
             topic: meta?.topic || "Trees",
             subtopic: meta?.subtopic || "Binary Search Tree",

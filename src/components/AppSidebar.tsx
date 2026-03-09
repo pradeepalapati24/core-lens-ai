@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Cpu, LayoutDashboard, User, BookOpen, Layers, Swords, FileText, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { Cpu, LayoutDashboard, User, BookOpen, Layers, Swords, FileText, LogOut, ChevronLeft, ChevronRight, FolderKanban } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,7 @@ const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Practice", url: "/practice", icon: BookOpen },
   { title: "Domains", url: "/domains", icon: Layers },
+  { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "Challenge", url: "/challenge", icon: Swords },
   { title: "Skill Report", url: "/skill-report", icon: FileText },
 ];

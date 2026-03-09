@@ -27,7 +27,12 @@ serve(async (req) => {
   }
 
   try {
-    const { domain, topic, subtopic, difficulty, domainId, topicId, subtopicId, userId } = await req.json();
+    const { domain, topic, subtopic, difficulty, domainId, topicId, subtopicId, userId, projectMode, projectName, projectDescription, projectTechStack } = await req.json();
+    
+    // Project mode: generate questions based on project details
+    if (projectMode && projectName) {
+      return await handleProjectQuestion({ projectName, projectDescription, projectTechStack, difficulty: difficulty || "intermediate", corsHeaders });
+    }
     
     if (!domain || !topic || !subtopic || !difficulty) {
       return new Response(
@@ -245,3 +250,80 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks or additional text.`;
     );
   }
 });
+
+async function handleProjectQuestion({ projectName, projectDescription, projectTechStack, difficulty, corsHeaders }: {
+  projectName: string;
+  projectDescription?: string;
+  projectTechStack?: string[];
+  difficulty: string;
+  corsHeaders: Record<string, string>;
+}) {
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+  const techList = projectTechStack?.length ? projectTechStack.join(", ") : "general web technologies";
+
+  const systemPrompt = `You are a senior technical interviewer generating project-based interview questions.
+Your goal is to create realistic interview questions that a candidate might face when discussing their project experience.
+The questions should probe deep understanding of the technologies used and architectural decisions made.`;
+
+  const userPrompt = `Generate an interview-level technical question based on this candidate's project:
+
+Project Name: ${projectName}
+Description: ${projectDescription || "Not provided"}
+Technologies Used: ${techList}
+Difficulty: ${difficulty}
+
+The question should:
+1. Be directly relevant to the technologies and architecture described
+2. Test real understanding, not just textbook knowledge
+3. Include scenarios the candidate would actually face building this project
+4. Be at ${difficulty} interview difficulty level
+
+Return ONLY valid JSON in this exact format:
+{
+  "domain": "Project-Based",
+  "topic": "${techList}",
+  "subtopic": "${projectName}",
+  "difficulty": "${difficulty}",
+  "questionText": "The full question text with clear scenario and expectations",
+  "learningContext": "Why this concept matters in real projects and how it connects to the candidate's experience",
+  "hints": ["Hint 1", "Hint 2", "Hint 3"],
+  "expectedConcepts": ["Concept 1", "Concept 2", "Concept 3"]
+}`;
+
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-3-flash-preview",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+    }),
+  });
+
+  if (!response.ok) {
+    const status = response.status;
+    if (status === 429) return new Response(JSON.stringify({ error: "Rate limited. Please wait." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (status === 402) return new Response(JSON.stringify({ error: "Payment required." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: "Failed to generate question" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+
+  const aiResponse = await response.json();
+  const content = aiResponse.choices?.[0]?.message?.content;
+  if (!content) throw new Error("No content in AI response");
+
+  const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+  const questionData = JSON.parse(cleanContent);
+  questionData.id = crypto.randomUUID();
+  questionData.createdAt = new Date().toISOString();
+  questionData.projectBased = true;
+
+  return new Response(JSON.stringify(questionData), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+}
