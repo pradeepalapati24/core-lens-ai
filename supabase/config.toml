@@ -5,3 +5,12 @@ verify_jwt = false
 
 [functions.generate-question]
 verify_jwt = false
+
+[functions.update-streak]
+verify_jwt = false
+
+[functions.generate-followup]
+verify_jwt = false
+
+[functions.evaluate-followup]
+verify_jwt = false

@@ -129,6 +129,26 @@ export default function EvaluationPage() {
             await supabase.from("user_performance").insert({ user_id: user.id, domain_id: resolvedDomainId, topic_id: resolvedTopicId, total_questions: 1, avg_score: finalScore, last_practiced_at: new Date().toISOString() });
           }
         }
+        // Update streak
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-streak`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({}),
+              }
+            );
+          }
+        } catch (streakErr) {
+          console.error("Streak update failed:", streakErr);
+        }
+
         setSaved(true);
       } catch (error) {
         console.error("Error saving evaluation results:", error);

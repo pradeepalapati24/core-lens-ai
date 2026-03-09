@@ -8,9 +8,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useDomainPerformance, useTopicPerformance, getStrongWeakDomains } from "@/hooks/useUserPerformance";
 import { useDomains } from "@/hooks/useDomains";
+import { useStreak } from "@/hooks/useStreak";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import OnboardingFlow from "@/components/OnboardingFlow";
+import StreakDisplay from "@/components/StreakDisplay";
 
 export default function DashboardPage() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -21,6 +23,7 @@ export default function DashboardPage() {
   const { data: domains = [] } = useDomains();
   const { data: domainPerformance = [] } = useDomainPerformance(userId);
   const { data: topicPerformance = [] } = useTopicPerformance(userId);
+  const { streak } = useStreak(userId);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -49,7 +52,7 @@ export default function DashboardPage() {
   const avgScore = avgScoreRaw * 10;
   const interviewReadiness = Math.round(avgScore);
   const hiringProbability = Math.min(Math.round(avgScore), 100);
-  const currentStreak = solvedQuestions.length > 0 ? 1 : 0;
+  const currentStreak = streak?.current_streak || 0;
 
   // Thinking Clarity: derived from communication scores across domains
   const thinkingClarity = domainPerformance.length > 0
@@ -311,6 +314,9 @@ export default function DashboardPage() {
           </div>
         )}
       </motion.div>
+
+      {/* Streak & Badges Section */}
+      <StreakDisplay userId={userId} />
 
       {/* Challenge — Secondary collaborative feature */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="surface-elevated p-6">
