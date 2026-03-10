@@ -1,0 +1,1 @@
+ALTER TABLE public.interview_sessions ADD COLUMN project_id uuid REFERENCES public.user_projects(id) ON DELETE SET NULL DEFAULT NULL;

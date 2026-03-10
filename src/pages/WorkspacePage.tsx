@@ -246,6 +246,8 @@ export default function WorkspacePage() {
           evaluation,
           domain: question.domain,
           topic: question.topic,
+          projectId: meta?.projectId || null,
+          projectName: meta?.projectName || null,
           pasteMetrics: {
             pasteCount,
             pastedChars,

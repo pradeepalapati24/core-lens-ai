@@ -255,6 +255,7 @@ export type Database = {
           initial_code: string | null
           initial_evaluation: Json | null
           initial_explanation: string | null
+          project_id: string | null
           question_id: string
           reasoning_depth_score: number | null
           session_status: string
@@ -268,6 +269,7 @@ export type Database = {
           initial_code?: string | null
           initial_evaluation?: Json | null
           initial_explanation?: string | null
+          project_id?: string | null
           question_id: string
           reasoning_depth_score?: number | null
           session_status?: string
@@ -281,6 +283,7 @@ export type Database = {
           initial_code?: string | null
           initial_evaluation?: Json | null
           initial_explanation?: string | null
+          project_id?: string | null
           question_id?: string
           reasoning_depth_score?: number | null
           session_status?: string
@@ -293,6 +296,13 @@ export type Database = {
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_sessions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "user_projects"
             referencedColumns: ["id"]
           },
           {
