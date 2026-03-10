@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useDomainPerformance, useTopicPerformance, getStrongWeakDomains, getStrongWeakTopics } from "@/hooks/useUserPerformance";
 import { useDomains } from "@/hooks/useDomains";
 import { Progress } from "@/components/ui/progress";
+import PracticeHistory from "@/components/PracticeHistory";
 
 // Level thresholds (on /100 scale)
 const LEVELS = [
@@ -340,6 +341,9 @@ export default function ProfilePage() {
           )}
         </motion.div>
       </div>
+
+      {/* Practice History */}
+      <PracticeHistory userId={userId} />
 
       {/* Recommendations */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="surface-elevated p-6">

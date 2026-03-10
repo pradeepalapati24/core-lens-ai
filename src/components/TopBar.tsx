@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Search, Bell, Command } from "lucide-react";
+import { Search, Command } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 const routeLabels: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -58,10 +59,7 @@ export default function TopBar() {
 
       {/* Right actions */}
       <div className="ml-auto flex items-center gap-1.5">
-        <button className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary" />
-        </button>
+        <NotificationDropdown />
         
         {displayName && (
           <div className="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-border">
