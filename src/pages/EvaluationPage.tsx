@@ -129,6 +129,23 @@ export default function EvaluationPage() {
             await supabase.from("user_performance").insert({ user_id: user.id, domain_id: resolvedDomainId, topic_id: resolvedTopicId, total_questions: 1, avg_score: finalScore, last_practiced_at: new Date().toISOString() });
           }
         }
+        // Save interview session with project_id if applicable
+        const projectId = state?.projectId || null;
+        if (state?.question?.id) {
+          await supabase.from("interview_sessions").insert({
+            user_id: user.id,
+            question_id: state.question.id,
+            initial_code: state?.code || null,
+            initial_explanation: state?.explanation || null,
+            initial_evaluation: aiEvaluation,
+            session_status: "completed",
+            completed_at: new Date().toISOString(),
+            reasoning_depth_score: reasoningDepthScore,
+            weakest_rubric: recommendedFocusArea || null,
+            project_id: projectId,
+          });
+        }
+
         // Update streak
         try {
           const { data: { session } } = await supabase.auth.getSession();
