@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Search, Bell, Command } from "lucide-react";
+import { Search, Command } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 const routeLabels: Record<string, string> = {
   "/dashboard": "Dashboard",
