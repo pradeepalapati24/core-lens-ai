@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useDomainPerformance, useTopicPerformance, getStrongWeakDomains, getStrongWeakTopics } from "@/hooks/useUserPerformance";
 import { useDomains } from "@/hooks/useDomains";
 import { Progress } from "@/components/ui/progress";
+import PracticeHistory from "@/components/PracticeHistory";
 
 // Level thresholds (on /100 scale)
 const LEVELS = [
