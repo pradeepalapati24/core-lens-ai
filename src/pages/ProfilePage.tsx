@@ -342,6 +342,9 @@ export default function ProfilePage() {
         </motion.div>
       </div>
 
+      {/* Practice History */}
+      <PracticeHistory userId={userId} />
+
       {/* Recommendations */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="surface-elevated p-6">
         <div className="flex items-center gap-2 mb-4">
