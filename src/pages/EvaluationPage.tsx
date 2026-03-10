@@ -440,16 +440,25 @@ export default function EvaluationPage() {
         </motion.div>
       </div>
 
-      {/* Expert Explanation */}
+      {/* Technical Explanation of the Question */}
       {evaluation.expertExplanation && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="surface-elevated p-5">
-          <h3 className="flex items-center gap-1.5 mb-3 text-xs font-medium"><BookOpen className="w-3.5 h-3.5 text-primary" /> Expert Explanation</h3>
-          <div className="prose prose-sm max-w-none">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="surface-elevated p-6 border-l-4 border-primary">
+          <h3 className="flex items-center gap-2 mb-4 text-sm font-semibold text-foreground">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-primary" />
+            </div>
+            Technical Explanation
+          </h3>
+          <p className="text-[11px] text-muted-foreground mb-4">Here's the expert-level explanation for this question — the approach, reasoning, and key concepts you should know.</p>
+          <div className="prose prose-sm max-w-none space-y-1">
             {evaluation.expertExplanation.split("\n").map((line: string, i: number) => {
-              if (line.startsWith("## ")) return <h2 key={i} className="text-sm font-semibold mt-3 mb-1.5 text-foreground">{line.replace("## ", "")}</h2>;
+              if (line.startsWith("## ")) return <h2 key={i} className="text-sm font-semibold mt-4 mb-1.5 text-foreground">{line.replace("## ", "")}</h2>;
+              if (line.startsWith("### ")) return <h3 key={i} className="text-xs font-semibold mt-3 mb-1 text-foreground">{line.replace("### ", "")}</h3>;
               if (line.startsWith("```")) return null;
-              if (line.startsWith("**")) return <p key={i} className="text-xs font-medium text-foreground mb-1">{line.replace(/\*\*/g, "")}</p>;
-              return <p key={i} className="text-xs text-muted-foreground mb-1">{line}</p>;
+              if (line.startsWith("- ")) return <li key={i} className="text-xs text-muted-foreground ml-4 mb-0.5">{line.replace("- ", "")}</li>;
+              if (line.startsWith("**")) return <p key={i} className="text-xs font-semibold text-foreground mb-1">{line.replace(/\*\*/g, "")}</p>;
+              if (!line.trim()) return <br key={i} />;
+              return <p key={i} className="text-xs text-muted-foreground leading-relaxed mb-1">{line}</p>;
             })}
           </div>
         </motion.div>

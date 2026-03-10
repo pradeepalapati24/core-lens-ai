@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, FolderOpen, Github, Trash2, Edit2, X, ChevronRight, Sparkles } from "lucide-react";
+import { Plus, FolderOpen, Github, Trash2, Edit2, X, ChevronRight, Sparkles, TrendingUp, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -20,9 +21,16 @@ interface UserProject {
   created_at: string;
 }
 
+interface ProjectStats {
+  totalSessions: number;
+  avgScore: number;
+  lastPracticed: string | null;
+}
+
 export default function ProjectsPage() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<UserProject[]>([]);
+  const [projectStats, setProjectStats] = useState<Record<string, ProjectStats>>({});
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<UserProject | null>(null);
@@ -50,9 +58,40 @@ export default function ProjectsPage() {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setProjects(data as UserProject[]);
+      const typedData = data as UserProject[];
+      setProjects(typedData);
+      // Fetch performance stats for each project
+      await fetchProjectStats(user.id, typedData);
     }
     setLoading(false);
+  };
+
+  const fetchProjectStats = async (userId: string, projectList: UserProject[]) => {
+    const stats: Record<string, ProjectStats> = {};
+    for (const project of projectList) {
+      const { data: sessions } = await supabase
+        .from("interview_sessions")
+        .select("initial_evaluation, completed_at")
+        .eq("user_id", userId)
+        .eq("project_id", project.id)
+        .eq("session_status", "completed")
+        .order("completed_at", { ascending: false });
+
+      if (sessions && sessions.length > 0) {
+        const scores = sessions
+          .map((s: any) => (s.initial_evaluation as any)?.finalScore)
+          .filter((s: any) => typeof s === "number");
+        const avgScore = scores.length > 0 ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : 0;
+        stats[project.id] = {
+          totalSessions: sessions.length,
+          avgScore: Math.round(avgScore * 10),
+          lastPracticed: sessions[0]?.completed_at || null,
+        };
+      } else {
+        stats[project.id] = { totalSessions: 0, avgScore: 0, lastPracticed: null };
+      }
+    }
+    setProjectStats(stats);
   };
 
   const resetForm = () => {
@@ -146,6 +185,18 @@ export default function ProjectsPage() {
     });
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 70) return "text-success";
+    if (score >= 50) return "text-warning";
+    return "text-destructive";
+  };
+
+  const getScoreBg = (score: number) => {
+    if (score >= 70) return "bg-success/10";
+    if (score >= 50) return "bg-warning/10";
+    return "bg-destructive/10";
+  };
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -234,52 +285,88 @@ export default function ProjectsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           <AnimatePresence>
-            {projects.map((project, i) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <Card className="group hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                      <CardTitle className="text-base">{project.name}</CardTitle>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => openEdit(project)} className="p-1.5 rounded-md hover:bg-accent">
-                          <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
-                        </button>
-                        <button onClick={() => handleDelete(project.id)} className="p-1.5 rounded-md hover:bg-destructive/10">
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </button>
+            {projects.map((project, i) => {
+              const stats = projectStats[project.id];
+              return (
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Card className="group hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-base">{project.name}</CardTitle>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => openEdit(project)} className="p-1.5 rounded-md hover:bg-accent">
+                            <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
+                          </button>
+                          <button onClick={() => handleDelete(project.id)} className="p-1.5 rounded-md hover:bg-destructive/10">
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {project.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">{project.description}</p>
-                    )}
-                    {project.tech_stack?.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {project.tech_stack.map(tech => (
-                          <Badge key={tech} variant="outline" className="text-xs">{tech}</Badge>
-                        ))}
-                      </div>
-                    )}
-                    {project.github_url && (
-                      <a href={project.github_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                        <Github className="h-3 w-3" /> View on GitHub
-                      </a>
-                    )}
-                    <Button size="sm" variant="secondary" className="w-full gap-1.5 mt-2" onClick={() => startPractice(project)}>
-                      <Sparkles className="h-3.5 w-3.5" /> Practice with this Project
-                      <ChevronRight className="h-3.5 w-3.5 ml-auto" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {project.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">{project.description}</p>
+                      )}
+                      {project.tech_stack?.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {project.tech_stack.map(tech => (
+                            <Badge key={tech} variant="outline" className="text-xs">{tech}</Badge>
+                          ))}
+                        </div>
+                      )}
+                      {project.github_url && (
+                        <a href={project.github_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                          <Github className="h-3 w-3" /> View on GitHub
+                        </a>
+                      )}
+
+                      {/* Performance Stats */}
+                      {stats && stats.totalSessions > 0 ? (
+                        <div className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
+                          <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                            <BarChart3 className="h-3 w-3" /> Performance
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-[10px] text-muted-foreground">Avg Score</span>
+                                <span className={`text-xs font-bold ${getScoreColor(stats.avgScore)}`}>{stats.avgScore}/100</span>
+                              </div>
+                              <Progress value={stats.avgScore} className="h-1.5" />
+                            </div>
+                            <div className="text-center">
+                              <div className={`text-lg font-bold ${getScoreColor(stats.avgScore)}`}>{stats.totalSessions}</div>
+                              <div className="text-[9px] text-muted-foreground">Sessions</div>
+                            </div>
+                          </div>
+                          {stats.lastPracticed && (
+                            <p className="text-[10px] text-muted-foreground">
+                              Last practiced: {new Date(stats.lastPracticed).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded-lg bg-muted/20 border border-border/50 flex items-center gap-2">
+                          <TrendingUp className="h-3.5 w-3.5 text-muted-foreground/50" />
+                          <span className="text-[11px] text-muted-foreground">No practice sessions yet</span>
+                        </div>
+                      )}
+
+                      <Button size="sm" variant="secondary" className="w-full gap-1.5 mt-2" onClick={() => startPractice(project)}>
+                        <Sparkles className="h-3.5 w-3.5" /> Practice with this Project
+                        <ChevronRight className="h-3.5 w-3.5 ml-auto" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
       )}
