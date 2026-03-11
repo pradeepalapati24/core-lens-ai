@@ -725,7 +725,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      lookup_challenge_by_share_code: {
+        Args: { p_share_code: string }
+        Returns: {
+          challenged_explanation: string | null
+          challenged_id: string | null
+          challenged_score: number | null
+          challenger_explanation: string | null
+          challenger_id: string
+          challenger_score: number | null
+          created_at: string | null
+          difficulty: string
+          domain_id: string | null
+          expires_at: string | null
+          id: string
+          question_text: string | null
+          share_code: string | null
+          status: string
+          subtopic_id: string | null
+          topic_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "challenges"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       difficulty_level: "beginner" | "intermediate" | "advanced"
