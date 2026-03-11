@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://core-lens-ai.lovable.app/sitemap.xml
