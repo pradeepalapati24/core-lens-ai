@@ -10,7 +10,7 @@ interface RadarDataPoint {
 }
 
 function RadarShape({ data, color }: { data: RadarDataPoint[]; color: string }) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Group>(null);
   const n = data.length;
 
   useFrame((_, delta) => {
