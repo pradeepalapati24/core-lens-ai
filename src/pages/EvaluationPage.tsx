@@ -10,6 +10,8 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
+import RubricRadar3D from "@/components/3d/RubricRadar3D";
+import RubricBars3D from "@/components/3d/RubricBars3D";
 import { supabase } from "@/integrations/supabase/client";
 
 const rubricLabels: Record<string, string> = {
