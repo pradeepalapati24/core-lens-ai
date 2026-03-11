@@ -116,9 +116,7 @@ export default function ChallengePage() {
     setJoining(true);
     
     const { data: challenge, error: findError } = await supabase
-      .from("challenges" as any)
-      .select("*")
-      .eq("share_code", joinCodeInput.trim())
+      .rpc("lookup_challenge_by_share_code", { p_share_code: joinCodeInput.trim() })
       .single();
 
     if (findError || !challenge) {
