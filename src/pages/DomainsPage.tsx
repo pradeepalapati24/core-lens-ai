@@ -11,8 +11,13 @@ export default function DomainsPage() {
   const coreDomains = domains.filter((d) => d.type === "core");
 
   const handleDomainClick = (domain: DbDomain) => {
-    navigate("/practice", {
-      state: { selectedDomainId: domain.id },
+    navigate("/topics", {
+      state: {
+        domainId: domain.id,
+        domainName: domain.name,
+        domainType: domain.type,
+        domainIcon: domain.icon || "📚",
+      },
     });
   };
 
