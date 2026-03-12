@@ -9,6 +9,7 @@ import TopBar from "./components/TopBar";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import DomainsPage from "./pages/DomainsPage";
+import TopicSelectPage from "./pages/TopicSelectPage";
 import PracticePage from "./pages/PracticePage";
 import WorkspacePage from "./pages/WorkspacePage";
 import EvaluationPage from "./pages/EvaluationPage";
@@ -43,6 +44,7 @@ function AppLayout() {
             <Routes>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/domains" element={<DomainsPage />} />
+              <Route path="/topics" element={<TopicSelectPage />} />
               <Route path="/practice" element={<PracticePage />} />
               <Route path="/workspace" element={<WorkspacePage />} />
               <Route path="/interview" element={<InterviewSimPage />} />

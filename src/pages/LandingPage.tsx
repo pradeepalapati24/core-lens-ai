@@ -12,23 +12,6 @@ const features = [
   { icon: Sparkles, title: "Skill Reports", description: "Export shareable proficiency summaries for resumes and LinkedIn." },
 ];
 
-const domainGroups = [
-  {
-    category: "SOFTWARE ENGINEERING",
-    domains: [
-      { icon: "💻", name: "IT / Software Engineering", topics: "6 topics · 60+ subtopics" },
-    ],
-  },
-  {
-    category: "CORE ENGINEERING",
-    domains: [
-      { icon: "⚡", name: "Core Electronics", topics: "6 topics · 40+ subtopics" },
-      { icon: "🌐", name: "IoT Systems", topics: "5 topics · 25+ subtopics" },
-      { icon: "🔬", name: "VLSI Design", topics: "5 topics · 25+ subtopics" },
-    ],
-  },
-];
-
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -68,29 +51,35 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero — Black/Gray professional */}
       <main className="flex-1">
-        <section className="relative overflow-hidden">
-          {/* Subtle gradient bg */}
+        <section className="relative overflow-hidden bg-[hsl(224,71%,4%)]">
+          {/* Gradient mesh bg */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-[hsl(220,15%,12%)] rounded-full blur-[160px] opacity-60" />
+            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[hsl(220,20%,8%)] rounded-full blur-[120px] opacity-50" />
+            {/* Grid pattern */}
+            <div className="absolute inset-0 opacity-[0.03]" style={{
+              backgroundImage: `linear-gradient(hsl(0,0%,100%) 1px, transparent 1px), linear-gradient(90deg, hsl(0,0%,100%) 1px, transparent 1px)`,
+              backgroundSize: '60px 60px',
+            }} />
           </div>
 
-          <div className="max-w-4xl mx-auto px-6 pt-24 pb-20 relative z-10 text-center">
+          <div className="max-w-4xl mx-auto px-6 pt-28 pb-24 relative z-10 text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs font-medium mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[hsl(220,15%,15%)] border border-[hsl(220,15%,20%)] text-[hsl(220,50%,70%)] text-xs font-medium mb-8">
                 <Sparkles className="w-3 h-3" />
                 AI Technical Interview Coach for Engineers
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-white">
                 Practice technical
                 <br />
-                <span className="text-gradient-primary">interviews with AI</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[hsl(220,70%,60%)] to-[hsl(200,80%,55%)]">interviews with AI</span>
               </h1>
 
-              <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
+              <p className="text-lg text-[hsl(220,10%,55%)] max-w-xl mx-auto mb-10 leading-relaxed">
                 Solve engineering problems, explain your reasoning, and get evaluated like a real technical interview.
               </p>
 
@@ -101,7 +90,7 @@ export default function LandingPage() {
                   </Button>
                 </Link>
                 <Link to="/domains">
-                  <Button variant="outline" size="lg" className="h-11 px-7 text-sm font-medium">
+                  <Button variant="outline" size="lg" className="h-11 px-7 text-sm font-medium border-[hsl(220,15%,20%)] bg-transparent text-[hsl(220,10%,70%)] hover:bg-[hsl(220,15%,12%)] hover:text-white">
                     Explore Domains
                   </Button>
                 </Link>
@@ -111,7 +100,7 @@ export default function LandingPage() {
         </section>
 
         {/* 3-Step Simple Explanation */}
-        <section className="max-w-3xl mx-auto px-6 pb-12">
+        <section className="max-w-3xl mx-auto px-6 py-16">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
             <h2 className="text-2xl font-bold mb-2">How It Works</h2>
             <p className="text-sm text-muted-foreground">Three steps to better interview performance</p>
@@ -148,32 +137,6 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        </section>
-
-        {/* Domains preview */}
-        <section className="max-w-5xl mx-auto px-6 pb-20">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <div className="text-center mb-10">
-              <h2 className="text-2xl font-bold mb-2">4 Engineering Domains</h2>
-              <p className="text-sm text-muted-foreground">Real engineering curriculum depth — not surface-level categories</p>
-            </div>
-            {domainGroups.map((group, gi) => (
-              <div key={group.category} className={gi > 0 ? "mt-6" : ""}>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">{group.category}</div>
-                <div className={`grid gap-4 ${group.domains.length === 1 ? "grid-cols-1 max-w-xs" : "grid-cols-2 lg:grid-cols-3"}`}>
-                  {group.domains.map((d, i) => (
-                    <motion.div key={d.name} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: (gi * 3 + i) * 0.06 }}>
-                      <Link to="/domains" className="card-hover block p-5">
-                        <span className="text-2xl mb-3 block">{d.icon}</span>
-                        <h3 className="font-semibold text-sm mb-1">{d.name}</h3>
-                        <p className="text-[11px] text-muted-foreground">{d.topics}</p>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </motion.div>
         </section>
 
         {/* Features */}
