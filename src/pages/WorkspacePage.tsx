@@ -86,10 +86,22 @@ export default function WorkspacePage() {
     setCurrentStep(1);
     
     let userId: string | null = null;
+    let accessToken: string | null = null;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      userId = user?.id || null;
+      const { data: { session } } = await supabase.auth.getSession();
+      userId = session?.user?.id || null;
+      accessToken = session?.access_token || null;
     } catch {}
+
+    if (!userId || !accessToken) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "Please sign in again to generate a question.",
+      });
+      setIsLoadingQuestion(false);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -98,7 +110,7 @@ export default function WorkspacePage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(meta?.projectMode ? {
             projectMode: true,
