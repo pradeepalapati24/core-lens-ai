@@ -193,7 +193,7 @@ export default function InterviewSimPage() {
     try {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/evaluate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({ problem: question.questionText, code: includeCode ? code : null, explanation, domain: question.domain, topic: question.topic, pasteMetrics: { pasteCount, pastedChars, typedChars, totalChars: explanation.length, pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0 } }),
       });
       clearInterval(si);
