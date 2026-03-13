@@ -191,9 +191,16 @@ export default function InterviewSimPage() {
     const si = setInterval(() => { idx++; if (idx < steps.length) setEvaluationStep(steps[idx]); }, 1500);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        clearInterval(si);
+        toast({ variant: "destructive", title: "Authentication Required", description: "Please sign in." });
+        setIsSubmitting(false);
+        return;
+      }
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/evaluate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ problem: question.questionText, code: includeCode ? code : null, explanation, domain: question.domain, topic: question.topic, pasteMetrics: { pasteCount, pastedChars, typedChars, totalChars: explanation.length, pasteRatio: explanation.length > 0 ? pastedChars / explanation.length : 0 } }),
       });
       clearInterval(si);
