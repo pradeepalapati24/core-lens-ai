@@ -100,23 +100,40 @@ FinalScore = (Understanding * 0.20) + (AlgorithmicThinking * 0.20) + (CodeQualit
 
 --------------------------------------------------
 
-FEEDBACK RULE
+FEEDBACK RULES
 
-Feedback must be honest, strict, and constructive. Use professional language.
-Do not praise weak solutions.
-If reasoning is unclear, explain specifically what is missing and what the candidate should have demonstrated.
+1. Feedback must be honest, strict, and constructive. Use professional language.
+2. Do not praise weak solutions.
+3. If reasoning is unclear, explain specifically what is missing and what the candidate should have demonstrated.
 
 Do NOT use harsh or dismissive phrases like "automatic failure" or "would be rejected immediately."
 Instead, use clear professional feedback such as:
-- "The response repeated the problem statement instead of explaining the reasoning. In a technical interview, candidates are expected to demonstrate understanding, reasoning, and real-world thinking."
+- "The response repeated the problem statement instead of explaining the reasoning."
 - "The explanation lacks depth. A strong answer would include step-by-step logic, trade-off analysis, and concrete examples."
-- "This level of explanation would not meet expectations for the target role. Focus on articulating your thought process clearly."
 
 --------------------------------------------------
 
-IMPORTANT
+STRUCTURED FEEDBACK RULES
 
-Act like a strict but professional technical interviewer evaluating a real candidate in a hiring interview. Be rigorous in scoring but constructive in feedback.
+You MUST provide feedback in structured categories:
+
+"whatInterviewersExpect" — List 2-4 specific things an interviewer would look for in a strong answer to THIS specific question. Be concrete.
+
+Example for a Phase Modulation question:
+- "Clear definition of Phase Modulation and how it differs from FM"
+- "The mathematical expression: s(t) = Ac cos(2πfct + kp m(t))"
+- "Explanation of how the phase sensitivity constant kp affects phase deviation"
+- "A real-world application example"
+
+--------------------------------------------------
+
+STRENGTHS RULE
+
+The "strengths" array must NEVER be empty. Even for weak answers, find at least one positive observation:
+- "Attempted to address the question"
+- "Identified the correct topic area"
+- "Submitted code that compiles"
+- "Showed awareness of the general concept"
 
 --------------------------------------------------
 
@@ -127,44 +144,69 @@ Behavioral paste data will be provided. Analyze whether the explanation appears 
 Signs of copy-paste:
 - High paste ratio (>0.7 means most text was pasted)
 - Explanation reads like documentation, textbook, or AI-generated content
-- Writing style is inconsistent (overly formal mixed with casual)
-- Contains formatting artifacts (markdown, bullet points not matching the context)
+- Writing style is inconsistent
+- Contains formatting artifacts
 - Generic explanations that don't specifically address the given problem
+
+If you detect the explanation is likely copy-pasted:
+- Set copyPasteDetected to true
+- Set copyPasteConfidence to a number 0-100
+- Provide a learning-oriented copyPasteReason (NOT audit-style). Example:
+  "Your response appears to be copied from the prompt. In technical interviews, interviewers evaluate how clearly you can explain concepts in your own words. Try explaining step-by-step instead."
+- Penalize Communication Clarity (≤ 2) and Problem Understanding (≤ 3)
+
+If the explanation appears authentic:
+- Set copyPasteDetected to false
+- Set copyPasteConfidence to 0
+
+--------------------------------------------------
 
 REASONING DEPTH CHECK
 
-Also check for low-reasoning indicators:
+Check for low-reasoning indicators:
 - Explanation simply repeats or paraphrases the problem statement
 - Very short explanations (less than 50 words of actual reasoning)
 - Generic responses that could apply to any problem
-- Lack of step-by-step thinking or analysis
+- Lack of step-by-step thinking
 - No mention of trade-offs, complexity, or alternatives
 
 If you detect low reasoning:
 - Set reasoningDepthScore to ≤ 3
 - If explanation repeats the problem: set it to ≤ 1
-- Display warning reason in feedback
 
-If you detect the explanation is likely copy-pasted:
-- Set copyPasteDetected to true
-- Set copyPasteConfidence to a number 0-100
-- Heavily penalize Communication Clarity (≤ 2) and Problem Understanding (≤ 3)
-- Note it in weaknesses
-
-If the explanation appears authentic and original:
-- Set copyPasteDetected to false
-- Set copyPasteConfidence to 0
+--------------------------------------------------
 
 AI LEARNING INSIGHTS
 
-Generate 2-3 personalized learning insights based on this specific evaluation. These should be actionable observations like:
-- "You explain concepts clearly but struggle with edge cases."
-- "Your strongest area is algorithmic thinking."
-- "Focus on discussing trade-offs to improve your communication score."
+Generate 2-3 QUESTION-SPECIFIC learning insights. These must reference the actual concept being tested, not generic advice.
+
+BAD (too generic):
+- "Identify and provide mathematical derivations."
+- "Practice explaining concepts clearly."
+
+GOOD (question-specific):
+- "This question required the Phase Modulation equation: s(t) = Ac cos(2πfct + kp m(t)). Your answer did not include the equation or explain how kp affects phase deviation."
+- "Your explanation correctly identified the topic but missed the key distinction between PM and FM signals."
+- "You demonstrated awareness of modulation concepts but should practice deriving the bandwidth formula for PM signals."
+
+--------------------------------------------------
+
+EXPERT EXPLANATION
+
+The "expertExplanation" field must contain a comprehensive, interview-quality explanation of the correct answer. Include:
+- Clear concept definition
+- Mathematical expressions (if applicable)
+- Key parameter explanations
+- How the concept applies in practice
+- Common misconceptions
+
+Format using markdown with ## and ### headings, bullet points, and bold text for key terms.
+
+--------------------------------------------------
 
 RECOMMENDED FOCUS AREA
 
-Identify the weakest rubric category from the scores and set recommendedFocusArea to the key name (e.g., "edgeCases", "communication", "algorithmicThinking").`;
+Identify the weakest rubric category and set recommendedFocusArea to its key name (e.g., "edgeCases", "communication", "algorithmicThinking").`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -172,7 +214,6 @@ serve(async (req) => {
   }
 
   try {
-    // Authenticate the user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -191,7 +232,6 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Build the evaluation prompt with actual values
     let filledPrompt = EVALUATION_PROMPT
       .replace("{{problem}}", problem || "Not provided")
       .replace("{{code}}", code || "No code submitted")
@@ -199,7 +239,6 @@ serve(async (req) => {
       .replace("{{domain}}", domain || "General")
       .replace("{{topic}}", topic || "General");
 
-    // Append paste metrics if available
     if (pasteMetrics) {
       filledPrompt += `\n\n--- PASTE BEHAVIORAL DATA ---\nPaste count: ${pasteMetrics.pasteCount}\nPasted characters: ${pasteMetrics.pastedChars}\nTyped characters: ${pasteMetrics.typedChars}\nTotal characters: ${pasteMetrics.totalChars}\nPaste ratio: ${(pasteMetrics.pasteRatio * 100).toFixed(1)}%\n--- END PASTE DATA ---`;
     }
@@ -238,21 +277,22 @@ serve(async (req) => {
                     required: ["understanding", "algorithmicThinking", "codeQuality", "edgeCases", "communication", "domainKnowledge"]
                   },
                   finalScore: { type: "number", minimum: 0, maximum: 10 },
-                  strengths: { type: "array", items: { type: "string" } },
+                  strengths: { type: "array", items: { type: "string" }, description: "MUST have at least one item. Even weak answers should highlight something positive." },
                   weaknesses: { type: "array", items: { type: "string" } },
                   improvements: { type: "array", items: { type: "string" } },
+                  whatInterviewersExpect: { type: "array", items: { type: "string" }, description: "2-4 specific things an interviewer would look for in a strong answer to THIS question." },
                   overallFeedback: { type: "string" },
-                  expertExplanation: { type: "string" },
+                  expertExplanation: { type: "string", description: "Comprehensive interview-quality explanation with markdown formatting, equations, and parameter explanations." },
                   interviewReadinessScore: { type: "number", minimum: 0, maximum: 10 },
-                      hiringProbability: { type: "number", minimum: 0, maximum: 100 },
-                      copyPasteDetected: { type: "boolean" },
-                      copyPasteConfidence: { type: "number", minimum: 0, maximum: 100 },
-                      copyPasteReason: { type: "string" },
-                      reasoningDepthScore: { type: "number", minimum: 0, maximum: 10, description: "How deeply the candidate reasons about the problem vs surface-level answers" },
-                      aiLearningInsights: { type: "array", items: { type: "string" }, description: "2-3 personalized learning insights based on this evaluation" },
-                      recommendedFocusArea: { type: "string", description: "The weakest rubric area that needs most practice" }
-                    },
-                    required: ["scores", "finalScore", "strengths", "weaknesses", "improvements", "overallFeedback", "expertExplanation", "interviewReadinessScore", "hiringProbability", "copyPasteDetected", "copyPasteConfidence", "reasoningDepthScore", "aiLearningInsights", "recommendedFocusArea"]
+                  hiringProbability: { type: "number", minimum: 0, maximum: 100 },
+                  copyPasteDetected: { type: "boolean" },
+                  copyPasteConfidence: { type: "number", minimum: 0, maximum: 100 },
+                  copyPasteReason: { type: "string", description: "Learning-oriented message, NOT audit-style. Guide the user on how to improve." },
+                  reasoningDepthScore: { type: "number", minimum: 0, maximum: 10 },
+                  aiLearningInsights: { type: "array", items: { type: "string" }, description: "2-3 QUESTION-SPECIFIC learning insights referencing actual concepts, equations, or techniques from this question." },
+                  recommendedFocusArea: { type: "string" }
+                },
+                required: ["scores", "finalScore", "strengths", "weaknesses", "improvements", "whatInterviewersExpect", "overallFeedback", "expertExplanation", "interviewReadinessScore", "hiringProbability", "copyPasteDetected", "copyPasteConfidence", "reasoningDepthScore", "aiLearningInsights", "recommendedFocusArea"]
               }
             }
           }
@@ -264,40 +304,42 @@ serve(async (req) => {
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limits exceeded. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required. Please add funds to your Lovable AI workspace." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        return new Response(JSON.stringify({ error: "Payment required." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
       return new Response(JSON.stringify({ error: "AI evaluation failed" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await response.json();
-    
-    // Extract the tool call result
+
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (toolCall?.function?.arguments) {
       const evaluation = JSON.parse(toolCall.function.arguments);
+      // Ensure strengths is never empty
+      if (!evaluation.strengths || evaluation.strengths.length === 0) {
+        evaluation.strengths = ["You attempted the question and submitted a response."];
+      }
       return new Response(JSON.stringify(evaluation), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Fallback: try to parse content directly
     const content = data.choices?.[0]?.message?.content;
     if (content) {
       try {
         const parsed = JSON.parse(content);
+        if (!parsed.strengths || parsed.strengths.length === 0) {
+          parsed.strengths = ["You attempted the question and submitted a response."];
+        }
         return new Response(JSON.stringify(parsed), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -307,15 +349,13 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({ error: "Failed to parse evaluation" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
   } catch (e) {
     console.error("Evaluation error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
