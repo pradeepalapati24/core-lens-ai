@@ -207,13 +207,20 @@ export default function WorkspacePage() {
     }, 1500);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        clearInterval(stepInterval);
+        toast({ variant: "destructive", title: "Authentication Required", description: "Please sign in to submit." });
+        setIsSubmitting(false);
+        return;
+      }
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/evaluate`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             problem: question.questionText,
